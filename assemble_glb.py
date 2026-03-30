@@ -15,7 +15,14 @@ STL_DIR  = "/tmp/gwh_meshes"
 OUT_GLB  = "/home/herrvorragend/projekte/gewaechshaus/gewaechshaus.glb"
 
 # ── Maße (mm, identisch mit freecad_model.py) ──────────────────────────────
-B = 1200; T = 1200; H = 2200; P = 50; P2 = 25; CH = 10; CW = 25; OVER = 300
+_proj = "/home/herrvorragend/projekte/gewaechshaus"
+try:
+    import sys as _sys; _sys.path.insert(0, _proj)
+    from params import B, T, H, OVER, P
+    del _sys
+except ImportError:
+    B = 1200; T = 1200; H = 2200; OVER = 300; P = 50
+P2 = P // 2; CH = 10; CW = 25
 SLOPE = 200 / 1200
 H_DACH_V = H - int(OVER * SLOPE)   # 2150
 H_DACH_H = 2400 + int(OVER * SLOPE) # 2450

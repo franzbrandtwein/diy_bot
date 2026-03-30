@@ -12,13 +12,28 @@ OUT_DIR = "/tmp/gwh_meshes"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Maße (identisch mit freecad_model.py) ──────────────────────────────────
-B = 1200; T = 1200; H = 2200; P = 50; P2 = P // 2
+# Parameter werden von params.py importiert (Web-Konfigurator)
+import os as _os
+_proj = "/home/herrvorragend/projekte/gewaechshaus"
+try:
+    import sys as _sys; _sys.path.insert(0, _proj)
+    from params import B, T, H, OVER, P
+    try:
+        from params import DOOR_FRONT, DOOR_BACK, DOOR_LEFT, DOOR_RIGHT
+    except ImportError:
+        DOOR_FRONT = True; DOOR_BACK = False; DOOR_LEFT = False; DOOR_RIGHT = False
+    del _sys
+except ImportError:
+    B = 1200; T = 1200; H = 2200; OVER = 300; P = 50
+    DOOR_FRONT = True; DOOR_BACK = False; DOOR_LEFT = False; DOOR_RIGHT = False
+del _os, _proj
+P2 = P // 2
 DW_SINGLE = (B - P) // 2; DW = B; DH = 1900; DT_P = 30
 MITTELSTIEL_X = B // 2 - P // 2; CW = 25; CH = 10; DX = 0
 QT_H = 60; QT_B = 60; N_QT = 4; PLANK_T = 22; PLANK_W = 116
 N_PL = 9; PL_GAP = 4; TH_H = 40; TH_D = 80
 STIEL_H = H - P2
-OVER = 300; SLOPE = 200 / 1200
+SLOPE = 200 / 1200
 H_DACH_V = H - int(OVER * SLOPE)
 H_DACH_H = 2400 + int(OVER * SLOPE)
 RISE = H_DACH_H - H_DACH_V
@@ -119,7 +134,7 @@ for _pi in range(N_PL):
     _px = _pl_x0 + _pi*(PLANK_W + PL_GAP)
     bx("wood", _px, P, P+QT_H, PLANK_W, T-2*P, PLANK_T)
 
-bx("wood", 0, 0, P, B, TH_D, TH_H)  # Trittholm
+# Trittholm wird in build_door_meshes('front') erzeugt
 
 # ── 3. OBERGURT ──────────────────────────────────────────────────────────
 _og_t_z = H - P; _og_t_dz = P2
@@ -132,37 +147,122 @@ box_notched("steel_frame", 0, 0,   H-P, B, P, P,
 box_notched("steel_frame", 0, T-P, H-P, B, P, P,
     [(0, T-P, H-P, P, P, P), (B-P, T-P, H-P, P, P, P)])
 
-# ── 4. TÜRRAHMEN ─────────────────────────────────────────────────────────
-bx("steel_frame", MITTELSTIEL_X, 0, P, P, P, DH)
-bx("steel_frame", P, 0, DH, B-2*P, P, P)
-_fh = H - P - (DH + P)
-if _fh > 0:
-    bx("steel_frame", P, 0, DH+P, B-2*P, P, _fh)
+# ── 4. TÜRRAHMEN (konfigurierbar) ─────────────────────────────────────────
+def build_door_meshes(side):
+    """Erzeugt Türrahmen-Geometrie für die angegebene Seite."""
+    if side in ('front', 'back'):
+        W      = B
+        y_wall = 0 if side == 'front' else T
+        ms_x   = B // 2 - P // 2
+        y_sign = -1 if side == 'front' else 1
 
-# Türflügel LINKS
-_tf_x1 = P; _tf_x2 = MITTELSTIEL_X
-_mid_z = P + DH//2 - DT_P//2
-bx("door_frame", _tf_x1,       0, P,          _tf_x2-_tf_x1, P, DT_P)
-bx("door_frame", _tf_x1,       0, P+DH-DT_P, _tf_x2-_tf_x1, P, DT_P)
-bx("door_frame", _tf_x1,       0, P+DT_P,    DT_P, P, DH-2*DT_P)
-bx("door_frame", _tf_x2-DT_P,  0, P+DT_P,    DT_P, P, DH-2*DT_P)
-bx("door_frame", _tf_x1,       0, _mid_z,    _tf_x2-_tf_x1, P, DT_P)
+        bx("steel_frame", ms_x, y_wall, P, P, P, DH)
+        bx("steel_frame", P, y_wall, DH, B-2*P, P, P)
+        _fh = H - P - (DH + P)
+        if _fh > 0:
+            bx("steel_frame", P, y_wall, DH+P, B-2*P, P, _fh)
 
-# Türflügel RECHTS
-_tf_rx1 = MITTELSTIEL_X + P; _tf_rx2 = B - P
-bx("door_frame", _tf_rx1,       0, P,          _tf_rx2-_tf_rx1, P, DT_P)
-bx("door_frame", _tf_rx1,       0, P+DH-DT_P, _tf_rx2-_tf_rx1, P, DT_P)
-bx("door_frame", _tf_rx1,       0, P+DT_P,    DT_P, P, DH-2*DT_P)
-bx("door_frame", _tf_rx2-DT_P,  0, P+DT_P,    DT_P, P, DH-2*DT_P)
-bx("door_frame", _tf_rx1,       0, _mid_z,    _tf_rx2-_tf_rx1, P, DT_P)
+        _tf_x1 = P; _tf_x2 = ms_x
+        _mid_z = P + DH//2 - DT_P//2
+        bx("door_frame", _tf_x1,       y_wall, P,          _tf_x2-_tf_x1, P, DT_P)
+        bx("door_frame", _tf_x1,       y_wall, P+DH-DT_P, _tf_x2-_tf_x1, P, DT_P)
+        bx("door_frame", _tf_x1,       y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        bx("door_frame", _tf_x2-DT_P,  y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        bx("door_frame", _tf_x1,       y_wall, _mid_z,    _tf_x2-_tf_x1, P, DT_P)
 
-# Tür-Scharniere
-DHG_W=100; DHG_D=20; DHG_H=80
-bx("hardware", 0,       0, 300,  DHG_W, DHG_D, DHG_H)
-bx("hardware", 0,       0, 1500, DHG_W, DHG_D, DHG_H)
-bx("hardware", B-DHG_W, 0, 300,  DHG_W, DHG_D, DHG_H)
-bx("hardware", B-DHG_W, 0, 1500, DHG_W, DHG_D, DHG_H)
-bx("hardware", MITTELSTIEL_X+P//2-10, -5, DH//2-20, 20, 5, 40)  # Riegel
+        _tf_rx1 = ms_x + P; _tf_rx2 = B - P
+        bx("door_frame", _tf_rx1,       y_wall, P,          _tf_rx2-_tf_rx1, P, DT_P)
+        bx("door_frame", _tf_rx1,       y_wall, P+DH-DT_P, _tf_rx2-_tf_rx1, P, DT_P)
+        bx("door_frame", _tf_rx1,       y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        bx("door_frame", _tf_rx2-DT_P,  y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        bx("door_frame", _tf_rx1,       y_wall, _mid_z,    _tf_rx2-_tf_rx1, P, DT_P)
+
+        DHG_W=100; DHG_D=20; DHG_H=80
+        _hd = DHG_D * y_sign
+        bx("hardware", 0,       y_wall, 300,  DHG_W, _hd, DHG_H)
+        bx("hardware", 0,       y_wall, 1500, DHG_W, _hd, DHG_H)
+        bx("hardware", B-DHG_W, y_wall, 300,  DHG_W, _hd, DHG_H)
+        bx("hardware", B-DHG_W, y_wall, 1500, DHG_W, _hd, DHG_H)
+        _ry = -5 * y_sign
+        bx("hardware", ms_x+P//2-10, y_wall+_ry, DH//2-20, 20, 5, 40)
+
+        if side == 'front':
+            bx("wood", 0, 0, P, B, TH_D, TH_H)  # Trittholm
+
+    else:  # 'left' oder 'right'
+        x_wall = 0 if side == 'left' else B
+        x_sign = -1 if side == 'left' else 1
+        ms_y   = T // 2 - P // 2
+
+        bx("steel_frame", x_wall, ms_y, P, P, P, DH)
+        bx("steel_frame", x_wall, P, DH, P, T-2*P, P)
+        _fh = H - P - (DH + P)
+        if _fh > 0:
+            bx("steel_frame", x_wall, P, DH+P, P, T-2*P, _fh)
+
+        _tf_y1 = P; _tf_y2 = ms_y
+        _mid_z = P + DH//2 - DT_P//2
+        bx("door_frame", x_wall, _tf_y1,       P,          P, _tf_y2-_tf_y1, DT_P)
+        bx("door_frame", x_wall, _tf_y1,       P+DH-DT_P, P, _tf_y2-_tf_y1, DT_P)
+        bx("door_frame", x_wall, _tf_y1,       P+DT_P,    P, DT_P, DH-2*DT_P)
+        bx("door_frame", x_wall, _tf_y2-DT_P,  P+DT_P,    P, DT_P, DH-2*DT_P)
+        bx("door_frame", x_wall, _tf_y1,       _mid_z,    P, _tf_y2-_tf_y1, DT_P)
+
+        _tf_ry1 = ms_y + P; _tf_ry2 = T - P
+        bx("door_frame", x_wall, _tf_ry1,       P,          P, _tf_ry2-_tf_ry1, DT_P)
+        bx("door_frame", x_wall, _tf_ry1,       P+DH-DT_P, P, _tf_ry2-_tf_ry1, DT_P)
+        bx("door_frame", x_wall, _tf_ry1,       P+DT_P,    P, DT_P, DH-2*DT_P)
+        bx("door_frame", x_wall, _tf_ry2-DT_P,  P+DT_P,    P, DT_P, DH-2*DT_P)
+        bx("door_frame", x_wall, _tf_ry1,       _mid_z,    P, _tf_ry2-_tf_ry1, DT_P)
+
+        DHG_W=100; DHG_D=20; DHG_H=80
+        _hd = DHG_D * x_sign
+        bx("hardware", x_wall, 0,       300,  _hd, DHG_W, DHG_H)
+        bx("hardware", x_wall, 0,       1500, _hd, DHG_W, DHG_H)
+        bx("hardware", x_wall, T-DHG_W, 300,  _hd, DHG_W, DHG_H)
+        bx("hardware", x_wall, T-DHG_W, 1500, _hd, DHG_W, DHG_H)
+        _rx = -5 * x_sign
+        bx("hardware", x_wall+_rx, ms_y+P//2-10, DH//2-20, 5, 20, 40)
+
+if DOOR_FRONT: build_door_meshes('front')
+if DOOR_BACK:  build_door_meshes('back')
+if DOOR_LEFT:  build_door_meshes('left')
+if DOOR_RIGHT: build_door_meshes('right')
+
+# ── 4b. QUERSTREBEN auf türlosen Seiten ───────────────────────────────────
+def _qs_zpositions(n):
+    wall_h = H - 2 * P
+    return [P + i * wall_h // (n + 1) - P // 2 for i in range(1, n + 1)]
+
+def build_querstrebe_mesh(side):
+    width = B if side in ('front', 'back') else T
+    n     = max(1, width // 1000)
+    for idx, qz in enumerate(_qs_zpositions(n), start=1):
+        if side == 'front':
+            box_notched("steel_frame", 0, 0, qz, B, P, P, [
+                (0,   0, qz, P, P, P),
+                (B-P, 0, qz, P, P, P),
+            ])
+        elif side == 'back':
+            box_notched("steel_frame", 0, T-P, qz, B, P, P, [
+                (0,   T-P, qz, P, P, P),
+                (B-P, T-P, qz, P, P, P),
+            ])
+        elif side == 'left':
+            box_notched("steel_frame", 0, 0, qz, P, T, P, [
+                (0, 0,   qz, P, P, P),
+                (0, T-P, qz, P, P, P),
+            ])
+        elif side == 'right':
+            box_notched("steel_frame", B-P, 0, qz, P, T, P, [
+                (B-P, 0,   qz, P, P, P),
+                (B-P, T-P, qz, P, P, P),
+            ])
+
+if not DOOR_FRONT: build_querstrebe_mesh('front')
+if not DOOR_BACK:  build_querstrebe_mesh('back')
+if not DOOR_LEFT:  build_querstrebe_mesh('left')
+if not DOOR_RIGHT: build_querstrebe_mesh('right')
 
 # ── 5. DACHRAHMEN ─────────────────────────────────────────────────────────
 bx("roof_frame", -OVER, -OVER,        H_DACH_V, B+2*OVER, P, P)

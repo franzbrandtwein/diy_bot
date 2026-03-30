@@ -22,11 +22,15 @@ import os
 OUT = "/home/herrvorragend/projekte/gewaechshaus"
 os.makedirs(OUT, exist_ok=True)
 
-# --- Masse (mm) --------------------------------------------------------------
-B        = 1200
-T        = 1200
-H        = 2200
-P        = 50
+# --- Masse (mm) – aus params.py (Web-Konfigurator) --------------------------
+_proj = "/home/herrvorragend/projekte/gewaechshaus"
+try:
+    import sys as _sys; _sys.path.insert(0, _proj)
+    from params import B, T, H, OVER, P
+    del _sys
+except ImportError:
+    B = 1200; T = 1200; H = 2200; OVER = 300; P = 50
+del _proj
 P2       = P // 2   # = 25 mm
 DW_SINGLE = (B - P) // 2    # = 575 mm lichte Breite je Flügel
 DW       = B                # = 1200 mm Gesamtbreite (volle Breite, zweiflügelig)
@@ -50,7 +54,7 @@ _pl_inner = B - 2*P
 _pl_total = N_PL*PLANK_W + (N_PL-1)*PL_GAP              # = 1076 mm
 _pl_x0    = P + (_pl_inner - _pl_total) // 2             # zentriert, x0 ≈ 62 mm
 
-OVER     = 300         # Dachüberstand auf allen 4 Seiten (mm)
+OVER     = OVER            # Dachüberstand auf allen 4 Seiten (mm) – aus params.py
 SLOPE    = 200 / 1200  # Neigung mm/mm (9.5 Grad, unveraendert)
 H_DACH_V = H - int(OVER * SLOPE)     # = 2150 mm
 H_DACH_H = 2400 + int(OVER * SLOPE)  # = 2450 mm

@@ -34,10 +34,18 @@ OUT = "/home/herrvorragend/projekte/gewaechshaus"
 os.makedirs(OUT, exist_ok=True)
 
 # === Maße =================================================================
-B        = 1200   # Breite   (X-Achse)
-T        = 1200   # Tiefe    (Y-Achse)
-H        = 2200   # Wandhöhe – Oberkante Obergurt (Z-Achse)
-P        = 50     # Profilquerschnitt 50x50
+# Parameter werden von params.py importiert (Web-Konfigurator)
+try:
+    import sys as _sys; _sys.path.insert(0, OUT)
+    from params import B, T, H, OVER, P
+    try:
+        from params import DOOR_FRONT, DOOR_BACK, DOOR_LEFT, DOOR_RIGHT
+    except ImportError:
+        DOOR_FRONT = True; DOOR_BACK = False; DOOR_LEFT = False; DOOR_RIGHT = False
+    del _sys
+except ImportError:
+    B = 1200; T = 1200; H = 2200; OVER = 300; P = 50
+    DOOR_FRONT = True; DOOR_BACK = False; DOOR_LEFT = False; DOOR_RIGHT = False
 P2       = P // 2 # = 25 mm  Ausklinkungstiefe / Zapfenlänge
 DW_SINGLE = (B - P) // 2    # = 575 mm lichte Breite je Flügel
 DW       = B                # = 1200 mm Gesamtbreite (volle Breite, zweiflügelig)
@@ -65,7 +73,7 @@ TH_D    = 80    # Trittholm-Tiefe (mm)
 STIEL_H  = H - P2   # = 2175 mm
 
 # === Pultdach =============================================================
-OVER     = 300         # Dachüberstand auf allen 4 Seiten (mm)
+OVER     = OVER            # Dachüberstand auf allen 4 Seiten (mm) – aus params.py
 SLOPE    = 200 / 1200  # Dachneigung mm/mm (9.5 Grad, unveraendert)
 H_DACH_V = H - int(OVER * SLOPE)     # = 2150 mm  (Vorderkante, Traufe)
 H_DACH_H = 2400 + int(OVER * SLOPE)  # = 2450 mm  (Hinterkante, Scharnierpunkt)
@@ -186,9 +194,7 @@ for _pi in range(N_PL):
     _px = _pl_x0 + _pi * (PLANK_W + PL_GAP)
     box("DIELE_%d" % (_pi + 1), _px, P, P + QT_H, PLANK_W, T - 2*P, PLANK_T)
 
-# Trittholm: 80mm tief × 40mm hoch × 1200mm lang (volle Türbreite)
-# Auf dem vorderen Bodenrahmen-Querriegel (z = P..P+TH_H = 50..90 mm)
-box("TRITTHOLM", 0, 0, P, B, TH_D, TH_H)
+# Trittholm wird in build_door('front') erzeugt (nur wenn DOOR_FRONT aktiv)
 
 # === 3. OBERGURT  Typ 1 + Typ 4 ==========================================
 # Längsriegel OG_L/OG_R: durchlaufend y=0..T, Tasche für Stielkopf-Zapfen.
@@ -214,44 +220,180 @@ box_notched("OG_H", 0, T-P, H-P, B, P, P, [
     (B-P, T-P, H-P, P, P, P),
 ])
 
-# === 4. TÜRRAHMEN – Zweiflügelige Drehtür volle Breite ====================
-# Mittelstiel 50×50 mm, x=575..625, z=P..P+DH (= 50..1950 mm)
-box("MITTELSTIEL", MITTELSTIEL_X, 0, P, P, P, DH)
-# Türsturz 50×50 mm, x=P..B-P (lichte Breite 1100 mm), z=DH..DH+P (= 1900..1950 mm)
-box("TURSTURZ", P, 0, DH, B - 2*P, P, P)
-# Oberfüllung zwischen Türsturz-OK und Obergurt-UK (Folie, 200 mm hoch)
-_fh = H - P - (DH + P)   # = 200 mm
-if _fh > 0:
-    box("TUF", P, 0, DH + P, B - 2*P, P, _fh)
+# === 4. TÜRRAHMEN – Zweiflügelige Drehtür (konfigurierbar) ================
 
-# Türflügel LINKS – Rahmen 30×30 mm, Außenmaß 575×1900 mm
-_tf_x1 = P                           # x=50 (Eckstiel-Innenkante)
-_tf_x2 = MITTELSTIEL_X               # x=575 (Mittelstiel-Linke Kante)
-_mid_z = P + DH // 2 - DT_P // 2    # Mittelstrebe z=985 mm
-box("TF_L_BOT", _tf_x1,       0, P,           _tf_x2-_tf_x1, P, DT_P)
-box("TF_L_TOP", _tf_x1,       0, P+DH-DT_P,  _tf_x2-_tf_x1, P, DT_P)
-box("TF_L_SL",  _tf_x1,       0, P+DT_P,     DT_P, P, DH-2*DT_P)
-box("TF_L_SR",  _tf_x2-DT_P,  0, P+DT_P,     DT_P, P, DH-2*DT_P)
-box("TF_L_MID", _tf_x1,       0, _mid_z,      _tf_x2-_tf_x1, P, DT_P)
+def build_door(side):
+    """
+    Baut eine zweiflügelige Tür auf der angegebenen Seite.
+    side: 'front' (y=0), 'back' (y=T), 'left' (x=0), 'right' (x=B)
 
-# Türflügel RECHTS – Rahmen 30×30 mm, Außenmaß 575×1900 mm
-_tf_rx1 = MITTELSTIEL_X + P          # x=625 (Mittelstiel-Rechte Kante)
-_tf_rx2 = B - P                      # x=1150 (Eckstiel-Innenkante rechts)
-box("TF_R_BOT", _tf_rx1,        0, P,           _tf_rx2-_tf_rx1, P, DT_P)
-box("TF_R_TOP", _tf_rx1,        0, P+DH-DT_P,  _tf_rx2-_tf_rx1, P, DT_P)
-box("TF_R_SL",  _tf_rx1,        0, P+DT_P,     DT_P, P, DH-2*DT_P)
-box("TF_R_SR",  _tf_rx2-DT_P,   0, P+DT_P,     DT_P, P, DH-2*DT_P)
-box("TF_R_MID", _tf_rx1,        0, _mid_z,      _tf_rx2-_tf_rx1, P, DT_P)
+    Bauteile pro Tür:
+    - Mittelstiel 50×50×DH mm
+    - Türsturz 50×50×(W-2P) mm  (W = Wandbreite der Seite)
+    - Oberfüllung zwischen Sturz-OK und Obergurt-UK (Folie)
+    - 2× Türflügel-Rahmen (je 2 vertikale + 3 horizontale 30×30 mm)
+    - 4× Scharniere (2 pro Flügel, außen)
+    - 1× Türriegel
+    - 1× Trittholm 80×40 mm (nur FRONT)
+    """
+    sfx = side[0].upper()   # Kürzel für Bauteilnamen: F/B/L/R
 
-# Scharniere Türflügel (100×80 mm, je 2 Stk pro Flügel, außen an Eckstielen)
-DHG_W = 100;  DHG_D = 20;  DHG_H = 80
-box("DHG_L1", 0, 0, 300,  DHG_W, DHG_D, DHG_H)
-box("DHG_L2", 0, 0, 1500, DHG_W, DHG_D, DHG_H)
-box("DHG_R1", B-DHG_W, 0, 300,  DHG_W, DHG_D, DHG_H)
-box("DHG_R2", B-DHG_W, 0, 1500, DHG_W, DHG_D, DHG_H)
+    if side in ('front', 'back'):
+        # Breite der Wand = B, Tiefe-Koordinate = y_wall
+        W      = B
+        y_wall = 0 if side == 'front' else T
+        y_sign = -1 if side == 'front' else 1   # Richtung nach außen
+        ms_x   = B // 2 - P // 2                # Mittelstiel X-Start
 
-# Verschluss / Türriegel (Karabinerhaken, mittig am Mittelstiel)
-box("TUERRIEGEL", MITTELSTIEL_X + P//2 - 10, -5, DH//2 - 20, 20, 5, 40)
+        # --- Mittelstiel ---
+        box("MITTELSTIEL_%s" % sfx, ms_x, y_wall, P, P, P, DH)
+
+        # --- Türsturz ---
+        box("TURSTURZ_%s" % sfx, P, y_wall, DH, B - 2*P, P, P)
+
+        # --- Oberfüllung ---
+        _fh = H - P - (DH + P)
+        if _fh > 0:
+            box("TUF_%s" % sfx, P, y_wall, DH + P, B - 2*P, P, _fh)
+
+        # --- Türflügel LINKS ---
+        _tf_x1 = P
+        _tf_x2 = ms_x
+        _mid_z = P + DH // 2 - DT_P // 2
+        box("TF_%s_L_BOT" % sfx, _tf_x1,       y_wall, P,          _tf_x2-_tf_x1, P, DT_P)
+        box("TF_%s_L_TOP" % sfx, _tf_x1,       y_wall, P+DH-DT_P, _tf_x2-_tf_x1, P, DT_P)
+        box("TF_%s_L_SL"  % sfx, _tf_x1,       y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        box("TF_%s_L_SR"  % sfx, _tf_x2-DT_P,  y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        box("TF_%s_L_MID" % sfx, _tf_x1,       y_wall, _mid_z,    _tf_x2-_tf_x1, P, DT_P)
+
+        # --- Türflügel RECHTS ---
+        _tf_rx1 = ms_x + P
+        _tf_rx2 = B - P
+        box("TF_%s_R_BOT" % sfx, _tf_rx1,       y_wall, P,          _tf_rx2-_tf_rx1, P, DT_P)
+        box("TF_%s_R_TOP" % sfx, _tf_rx1,       y_wall, P+DH-DT_P, _tf_rx2-_tf_rx1, P, DT_P)
+        box("TF_%s_R_SL"  % sfx, _tf_rx1,       y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        box("TF_%s_R_SR"  % sfx, _tf_rx2-DT_P,  y_wall, P+DT_P,    DT_P, P, DH-2*DT_P)
+        box("TF_%s_R_MID" % sfx, _tf_rx1,       y_wall, _mid_z,    _tf_rx2-_tf_rx1, P, DT_P)
+
+        # --- Scharniere ---
+        DHG_W = 100; DHG_D = 20; DHG_H = 80
+        _hinge_dy = DHG_D * y_sign
+        box("DHG_%s_L1" % sfx, 0,        y_wall, 300,  DHG_W, _hinge_dy, DHG_H)
+        box("DHG_%s_L2" % sfx, 0,        y_wall, 1500, DHG_W, _hinge_dy, DHG_H)
+        box("DHG_%s_R1" % sfx, B-DHG_W,  y_wall, 300,  DHG_W, _hinge_dy, DHG_H)
+        box("DHG_%s_R2" % sfx, B-DHG_W,  y_wall, 1500, DHG_W, _hinge_dy, DHG_H)
+
+        # --- Türriegel ---
+        _ry = -5 * y_sign
+        box("TUERRIEGEL_%s" % sfx, ms_x + P//2 - 10, y_wall + _ry, DH//2 - 20, 20, 5, 40)
+
+        # --- Trittholm (nur Vorderseite) ---
+        if side == 'front':
+            box("TRITTHOLM", 0, 0, P, B, TH_D, TH_H)
+
+    else:  # 'left' oder 'right'
+        # Breite der Wand = T, Längs-Koordinate = x_wall
+        W      = T
+        x_wall = 0 if side == 'left' else B
+        x_sign = -1 if side == 'left' else 1   # Richtung nach außen
+        ms_y   = T // 2 - P // 2               # Mittelstiel Y-Start
+
+        # --- Mittelstiel ---
+        box("MITTELSTIEL_%s" % sfx, x_wall, ms_y, P, P, P, DH)
+
+        # --- Türsturz ---
+        box("TURSTURZ_%s" % sfx, x_wall, P, DH, P, T - 2*P, P)
+
+        # --- Oberfüllung ---
+        _fh = H - P - (DH + P)
+        if _fh > 0:
+            box("TUF_%s" % sfx, x_wall, P, DH + P, P, T - 2*P, _fh)
+
+        # --- Türflügel LINKS (in Y-Richtung) ---
+        _tf_y1 = P
+        _tf_y2 = ms_y
+        _mid_z = P + DH // 2 - DT_P // 2
+        box("TF_%s_L_BOT" % sfx, x_wall, _tf_y1,       P,          P, _tf_y2-_tf_y1, DT_P)
+        box("TF_%s_L_TOP" % sfx, x_wall, _tf_y1,       P+DH-DT_P, P, _tf_y2-_tf_y1, DT_P)
+        box("TF_%s_L_SL"  % sfx, x_wall, _tf_y1,       P+DT_P,    P, DT_P, DH-2*DT_P)
+        box("TF_%s_L_SR"  % sfx, x_wall, _tf_y2-DT_P,  P+DT_P,    P, DT_P, DH-2*DT_P)
+        box("TF_%s_L_MID" % sfx, x_wall, _tf_y1,       _mid_z,    P, _tf_y2-_tf_y1, DT_P)
+
+        # --- Türflügel RECHTS (in Y-Richtung) ---
+        _tf_ry1 = ms_y + P
+        _tf_ry2 = T - P
+        box("TF_%s_R_BOT" % sfx, x_wall, _tf_ry1,       P,          P, _tf_ry2-_tf_ry1, DT_P)
+        box("TF_%s_R_TOP" % sfx, x_wall, _tf_ry1,       P+DH-DT_P, P, _tf_ry2-_tf_ry1, DT_P)
+        box("TF_%s_R_SL"  % sfx, x_wall, _tf_ry1,       P+DT_P,    P, DT_P, DH-2*DT_P)
+        box("TF_%s_R_SR"  % sfx, x_wall, _tf_ry2-DT_P,  P+DT_P,    P, DT_P, DH-2*DT_P)
+        box("TF_%s_R_MID" % sfx, x_wall, _tf_ry1,       _mid_z,    P, _tf_ry2-_tf_ry1, DT_P)
+
+        # --- Scharniere ---
+        DHG_W = 100; DHG_D = 20; DHG_H = 80
+        _hinge_dx = DHG_D * x_sign
+        box("DHG_%s_L1" % sfx, x_wall, 0,       300,  _hinge_dx, DHG_W, DHG_H)
+        box("DHG_%s_L2" % sfx, x_wall, 0,       1500, _hinge_dx, DHG_W, DHG_H)
+        box("DHG_%s_R1" % sfx, x_wall, T-DHG_W, 300,  _hinge_dx, DHG_W, DHG_H)
+        box("DHG_%s_R2" % sfx, x_wall, T-DHG_W, 1500, _hinge_dx, DHG_W, DHG_H)
+
+        # --- Türriegel ---
+        _rx = -5 * x_sign
+        box("TUERRIEGEL_%s" % sfx, x_wall + _rx, ms_y + P//2 - 10, DH//2 - 20, 5, 20, 40)
+
+
+# === TÜREN (konfigurierbar) ===============================================
+if DOOR_FRONT: build_door('front')
+if DOOR_BACK:  build_door('back')
+if DOOR_LEFT:  build_door('left')
+if DOOR_RIGHT: build_door('right')
+
+# === 4b. QUERSTREBEN auf türlosen Seiten (dynamisch je nach Wandbreite) ====
+# n_streben = max(1, Wandbreite // 1000)
+#   < 2 m  → 1 Strebe (halbe Höhe)
+#   2–3 m  → 2 Streben (1/3, 2/3 Höhe)
+#   3–4 m  → 3 Streben (1/4, 2/4, 3/4 Höhe)  usw.
+# Verbindung: Vollausklinkung Typ 1 (wie BR_V/OG_V)
+
+def _qs_zpositions(n):
+    """n gleichmäßig verteilte Z-Startpositionen (Profilunterkante) für Querstreben."""
+    wall_h = H - 2 * P          # freie Wandhöhe zwischen Rahmen
+    return [P + i * wall_h // (n + 1) - P // 2 for i in range(1, n + 1)]
+
+def build_querstrebe(side):
+    """Baut Querstreben auf halber (bzw. mehrfach unterteilter) Wandhöhe."""
+    sfx   = side[0].upper()
+    width = B if side in ('front', 'back') else T
+    n     = max(1, width // 1000)
+    for idx, qz in enumerate(_qs_zpositions(n), start=1):
+        name = "QS_%s_%d" % (sfx, idx)
+        if side == 'front':
+            box_notched(name, 0, 0, qz, B, P, P, [
+                (0,   0, qz, P, P, P),
+                (B-P, 0, qz, P, P, P),
+            ])
+        elif side == 'back':
+            box_notched(name, 0, T-P, qz, B, P, P, [
+                (0,   T-P, qz, P, P, P),
+                (B-P, T-P, qz, P, P, P),
+            ])
+        elif side == 'left':
+            box_notched(name, 0, 0, qz, P, T, P, [
+                (0, 0,   qz, P, P, P),
+                (0, T-P, qz, P, P, P),
+            ])
+        elif side == 'right':
+            box_notched(name, B-P, 0, qz, P, T, P, [
+                (B-P, 0,   qz, P, P, P),
+                (B-P, T-P, qz, P, P, P),
+            ])
+
+if not DOOR_FRONT: build_querstrebe('front')
+if not DOOR_BACK:  build_querstrebe('back')
+if not DOOR_LEFT:  build_querstrebe('left')
+if not DOOR_RIGHT: build_querstrebe('right')
+
+# Trittholm nur wenn KEINE Vordertür (dann gar kein Trittholm nötig)
+# -> wird bereits in build_door('front') erzeugt
 
 # === 5. DACHRAHMEN  (1800×1800 mm, Überstand 300 mm auf allen Seiten) ======
 box("DR_V",  -OVER, -OVER,        H_DACH_V, B + 2*OVER, P, P)

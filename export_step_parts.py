@@ -50,7 +50,14 @@ OUT_DIR = "/home/herrvorragend/projekte/gewaechshaus/step_parts"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Abmessungsparameter (identisch zu freecad_model.py) ──────────────────────
-P        = 50     # Stahlprofil-Querschnitt [mm]
+_proj = "/home/herrvorragend/projekte/gewaechshaus"
+try:
+    import sys as _sys; _sys.path.insert(0, _proj)
+    from params import B, T, H, OVER, P
+    del _sys
+except ImportError:
+    B = 1200; T = 1200; H = 2200; OVER = 300; P = 50
+del _proj
 DT_P     = 30     # Türflügel-Profil [mm]
 CW, CH   = 25, 10 # Klemmschiene B×H [mm]
 QT_H = QT_B = 60  # KVH-Querträger [mm]
@@ -58,14 +65,13 @@ PLANK_W  = 116    # Dielenbreite [mm]
 PLANK_T  = 22     # Dielendicke [mm]
 TH_D, TH_H = 80, 40  # Trittholm [mm]
 
-# Dachüberstand 300 mm auf allen Seiten → Dachrahmen 1800×1800 mm
-OVER  = 300
+# Dachüberstand – aus params.py
 RISE_ORIG  = 200   # Ursprüngliche Höhendiff über 1200 mm Tiefe
 SLOPE = RISE_ORIG / 1200
-RISE  = int((1200 + 2*OVER) * SLOPE)   # = 300 mm (über 1800 mm Tiefe)
-DEPTH = 1200 + 2*OVER                   # = 1800 mm
-RAFTER_L = int(math.ceil(math.sqrt(DEPTH**2 + RISE**2)))  # ≈ 1825 mm
-RAFTER_ANGLE_DEG = round(math.degrees(math.atan2(RISE, DEPTH)), 1)  # ≈ 9.5°
+RISE  = int((T + 2*OVER) * SLOPE)
+DEPTH = T + 2*OVER
+RAFTER_L = int(math.ceil(math.sqrt(DEPTH**2 + RISE**2)))
+RAFTER_ANGLE_DEG = round(math.degrees(math.atan2(RISE, DEPTH)), 1)
 
 # ── Bauteil-Definitionen ──────────────────────────────────────────────────────
 #  Jeder Eintrag:

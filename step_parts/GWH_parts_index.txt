@@ -14,7 +14,7 @@ Bauteile:     24/24 erfolgreich exportiert
   5  ✓ GWH_05_obergurt_quer.step                Obergurt Querriegel            50×1100×50 mm (L×B×H), 2 Cut(s) Stahl S235, 50×50 RHS           2  inkl. Ausklinkungen – Typ-1-Vollausklinkung Enden (liegt in Obergurt-Längsriegel)
   6  ✓ GWH_06_dach_vorderriegel.step            Dachrahmen Vorderriegel        1800×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  Überstand 300 mm je Seite; z=2150 mm (Traufe)
   7  ✓ GWH_07_dach_hinterriegel.step            Dachrahmen Hinterriegel        1800×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  Überstand 300 mm je Seite; z=2450 mm (First/Scharnier)
-  8  ✓ GWH_08_dach_seitentraeger.step           Dachrahmen Seitenträger        50×1825×50 mm (L×B×H)     Stahl S235, 50×50 RHS           2  Schrägmaß 1825 mm; beidseitig auf 9.5° ablängen (Pultdachneigung)
+  8  ✓ GWH_08_dach_seitentraeger.step           Dachrahmen Seitenträger        50×1521×50 mm (L×B×H)     Stahl S235, 50×50 RHS           2  Schrägmaß 1521 mm; beidseitig auf 9.5° ablängen (Pultdachneigung)
   9  ✓ GWH_09_dach_mittelpfette.step            Dachrahmen Mittelpfette        1800×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  Überstand 300 mm je Seite; z=2300 mm (Mitte)
  10  ✓ GWH_10_scharnier_dach.step               Schwerlast-Scharnier Dach      100×20×260 mm (L×B×H)     Stahl verzinkt                  2  Scharniergröße 100×100×10 mm; Gesamthöhe montiert ~260 mm
  11  ✓ GWH_11_gasdruckfeder.step                Gasdruckfeder                  Ø28×350 mm                Stahl, Gasdruckfeder            1  Ø28 mm, Hub ~175 mm; hier als Vollzylinder Ø28×350 dargestellt
@@ -37,7 +37,7 @@ HINWEISE ZUR VERWENDUNG
 ----------------------------------------------------------------------------------------------------
 • Alle STEP-Dateien im AP214-Format (ISO 10303-21)
 • Schrägbauteile (Nr. 08 Dach-Seitenträger) als gerades Rohmaß exportiert;
-  Ablängwinkel: 9.5° (Pultdachneigung, Höhenunterschied 300 mm auf 1800 mm Tiefe)
+  Ablängwinkel: 9.5° (Pultdachneigung, Höhenunterschied 250 mm auf 1500 mm Tiefe)
 • Schrauben/Scharnier als Vollzylinder/-quader – keine Gewindegeometrie
 • Ausklinkungen und Zapfenverbindungen sind für GWH_01–05 und GWH_14 modelliert (Boolean Cuts):
     GWH_01 Eckstiel:              Typ-4-Kopfzapfen (25 mm, y-hintere Hälfte)

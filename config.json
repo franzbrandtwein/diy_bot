@@ -1,0 +1,12 @@
+{
+  "B": 1200,
+  "T": 1200,
+  "H": 2200,
+  "OVER": 150,
+  "P": 50,
+  "DOOR_FRONT": true,
+  "DOOR_BACK": true,
+  "DOOR_LEFT": false,
+  "DOOR_RIGHT": true,
+  "last_updated": "2026-03-30T17:29:35"
+}

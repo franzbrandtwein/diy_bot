@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌱 Gewächshaus Konfigurator</title>
+<!-- PWA -->
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#1a6b3a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GWH Konfig">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+<style>
+/* ── Reset & Base ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0f1117;
+  --surface:   #1a1d27;
+  --surface2:  #22263a;
+  --border:    #2e3350;
+  --accent:    #3d8bcd;
+  --accent2:   #2d6a4f;
+  --highlight: #e94560;
+  --text:      #e0e4ef;
+  --text-dim:  #7a82a0;
+  --green:     #4caf7d;
+  --yellow:    #f0c040;
+  --red:       #e94560;
+  --radius:    8px;
+  --shadow:    0 4px 24px rgba(0,0,0,.45);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
+  z-index: 10;
+}
+header h1 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+header h1 span.version {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.btn {
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s, border-color .15s;
+  text-decoration: none;
+}
+.btn:hover { background: var(--border); border-color: var(--accent); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.btn.primary:hover { background: #2d7abf; }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── Main layout: 3 columns ──────────────────────────────────────────── */
+.main {
+  display: grid;
+  grid-template-columns: 270px 1fr 260px;
+  gap: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Panel base ──────────────────────────────────────────────────────── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+.panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+.panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ── LEFT: Parameter Panel ────────────────────────────────────────────── */
+.param-group { margin-bottom: 18px; }
+.param-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  letter-spacing: .3px;
+}
+.param-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.param-row input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+.param-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(61,139,205,.25);
+}
+.param-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 66px;
+  text-align: right;
+}
+.param-input {
+  width: 74px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+.param-input:focus { outline: none; border-color: var(--accent); }
+
+/* Door layout grid */
+.door-layout {
+  display: grid;
+  grid-template-areas:
+    ". top ."
+    "left center right"
+    ". bottom .";
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 4px;
+  background: #1e2a3a;
+  border: 1px solid #3d8bcd;
+  border-radius: 6px;
+  padding: 8px;
+  min-height: 120px;
+}
+.door-center { grid-area: center; display:flex; align-items:center; justify-content:center; font-size:2em; }
+.door-top    { grid-area: top;    text-align:center; }
+.door-bottom { grid-area: bottom; text-align:center; }
+.door-left   { grid-area: left;   display:flex; align-items:center; }
+.door-right  { grid-area: right;  display:flex; align-items:center; justify-content:flex-end; }
+.door-slot label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background .15s;
+}
+.door-slot label:hover { background: rgba(61,139,205,.15); }
+.door-slot input[type="checkbox"] {
+  width: 15px; height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+/* Progress bar */
+.progress-wrap {
+  margin: 12px 0 6px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+.progress-bar-outer {
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.progress-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--green) 100%);
+  border-radius: 4px;
+  transition: width .4s ease;
+}
+.status-msg {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  min-height: 18px;
+  line-height: 1.4;
+}
+.status-msg.error { color: var(--red); }
+.status-msg.ok    { color: var(--green); }
+
+/* Build log */
+.build-log {
+  margin-top: 10px;
+  background: #0a0c14;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-family: 'Consolas', monospace;
+  font-size: 10px;
+  color: #6a8a6a;
+  max-height: 100px;
+  overflow-y: auto;
+  display: none;
+}
+.build-log.visible { display: block; }
+
+/* Config info */
+.config-info {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+.config-info table { width: 100%; border-collapse: collapse; }
+.config-info td { padding: 2px 0; font-size: 12px; }
+.config-info td:first-child { color: var(--text-dim); width: 40%; }
+.config-info td:last-child { color: var(--text); font-weight: 600; text-align: right; }
+
+/* ── CENTER: 3D Viewer ────────────────────────────────────────────────── */
+.viewer-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.viewer-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.viewer-tab {
+  padding: 9px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  letter-spacing: .3px;
+}
+.viewer-tab:hover { color: var(--text); }
+.viewer-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.viewer-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Viewer overlays */
+.viewer-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(15,17,23,.85);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+  transition: opacity .3s;
+}
+.viewer-overlay.hidden { display: none; }
+.viewer-overlay .spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.viewer-overlay p { font-size: 13px; color: var(--text-dim); }
+
+/* Viewer controls hint */
+.viewer-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: rgba(255,255,255,.25);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Part info badge */
+.part-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(26,29,39,.9);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 12px;
+  pointer-events: none;
+  display: none;
+}
+.part-badge.visible { display: block; }
+.part-badge .pb-name { font-weight: 700; color: var(--text); }
+.part-badge .pb-info { color: var(--text-dim); margin-top: 2px; }
+
+/* ── RIGHT: Parts List ────────────────────────────────────────────────── */
+.parts-list { list-style: none; }
+.parts-group-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 10px 0 5px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.parts-group-header:first-child { padding-top: 2px; }
+
+.part-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s;
+  margin-bottom: 2px;
+  position: relative;
+}
+.part-item:hover { background: var(--surface2); }
+.part-item.active {
+  background: rgba(61,139,205,.15);
+  border: 1px solid rgba(61,139,205,.3);
+}
+.part-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.part-info { flex: 1; min-width: 0; }
+.part-pos {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .3px;
+}
+.part-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.part-mat {
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.part-qty {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--surface2);
+  border-radius: 4px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .main { grid-template-columns: 1fr; height: auto; overflow: visible; }
+  .panel { border-right: none; border-bottom: 1px solid var(--border); height: auto; }
+  .panel:last-child { border-left: none; }
+  .viewer-container { height: 65vh; min-height: 380px; }
+  .panel-body { max-height: 400px; }
+}
+
+@media (max-width: 480px) {
+  .viewer-container { height: 70vh; min-height: 320px; }
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────── */
+[data-tip] { position: relative; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+<header>
+  <h1>🌱 Gewächshaus Konfigurator <span class="version">v1.0</span></h1>
+  <div class="header-actions">
+    <a href="/pdf/drawing" target="_blank" class="btn" data-tip="Technische Zeichnung als PDF">
+      📐 Zeichnung
+    </a>
+    <a href="/pdf/stueckliste" target="_blank" class="btn" data-tip="Stückliste mit 3D-Ansichten">
+      📋 Stückliste
+    </a>
+    <button class="btn" onclick="reloadGLB()" data-tip="3D-Modell neu laden">
+      🔄 Modell neu laden
+    </button>
+  </div>
+</header>
+
+<!-- ── MAIN ───────────────────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- LEFT: Parameter Panel ──────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-title">⚙️ Parameter</div>
+    <div class="panel-body">
+
+      <div class="param-group">
+        <label>Breite (B) – X-Achse</label>
+        <div class="param-row">
+          <input type="range" id="slider-B" min="800" max="3000" step="50" value="1200"
+                 oninput="syncParam('B', this.value)">
+          <input type="number" id="input-B" class="param-input" value="1200" min="800" max="3000"
+                 oninput="syncParam('B', this.value)">
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px">800 – 3000 mm</div>
+      </div>
+
+      <div class="param-group">
+        <label>Tiefe (T) – Y-Achse</label>
+        <div class="param-row">
+          <input type="range" id="slider-T" min="800" max="3000" step="50" value="1200"
+                 oninput="syncParam('T', this.value)">
+          <input type="number" id="input-T" class="param-input" value="1200" min="800" max="3000"
+                 oninput="syncParam('T', this.value)">
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px">800 – 3000 mm</div>
+      </div>
+
+      <div class="param-group">
+        <label>Wandhöhe (H) – Z-Achse</label>
+        <div class="param-row">
+          <input type="range" id="slider-H" min="1500" max="4000" step="50" value="2200"
+                 oninput="syncParam('H', this.value)">
+          <input type="number" id="input-H" class="param-input" value="2200" min="1500" max="4000"
+                 oninput="syncParam('H', this.value)">
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px">1500 – 4000 mm</div>
+      </div>
+
+      <div class="param-group">
+        <label>Dachüberstand (OVER) – alle 4 Seiten</label>
+        <div class="param-row">
+          <input type="range" id="slider-OVER" min="0" max="800" step="25" value="300"
+                 oninput="syncParam('OVER', this.value)">
+          <input type="number" id="input-OVER" class="param-input" value="300" min="0" max="800"
+                 oninput="syncParam('OVER', this.value)">
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px">0 – 800 mm</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Türpositionen -->
+      <div class="param-group">
+        <label style="margin-bottom:8px">🚪 Türpositionen</label>
+        <div class="door-layout">
+          <div class="door-slot door-top">
+            <label>
+              <input type="checkbox" id="door_back" onchange="markDirty()">
+              <span>Hinten</span>
+            </label>
+          </div>
+          <div class="door-slot door-left">
+            <label>
+              <input type="checkbox" id="door_left" onchange="markDirty()">
+              <span>Links</span>
+            </label>
+          </div>
+          <div class="door-center">🏠</div>
+          <div class="door-slot door-right">
+            <label>
+              <input type="checkbox" id="door_right" onchange="markDirty()">
+              <span>Rechts</span>
+            </label>
+          </div>
+          <div class="door-slot door-bottom">
+            <label>
+              <input type="checkbox" id="door_front" checked onchange="markDirty()">
+              <span>Vorne</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Beleuchtung -->
+      <details style="margin-bottom:8px">
+        <summary style="cursor:pointer;color:var(--text-dim);font-size:0.85em;padding:4px 0;user-select:none">
+          💡 Beleuchtung
+        </summary>
+        <div style="padding-top:8px;display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:0.82em">
+            Exposure
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="range" id="light_exposure" min="0.5" max="5" step="0.1" value="2.8"
+                     oninput="updateLighting()" style="flex:1">
+              <span id="light_exposure_val" style="min-width:28px;text-align:right">2.8</span>
+            </div>
+          </label>
+          <label style="font-size:0.82em">
+            Umgebungslicht
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="range" id="light_ambient" min="0" max="5" step="0.1" value="2.5"
+                     oninput="updateLighting()" style="flex:1">
+              <span id="light_ambient_val" style="min-width:28px;text-align:right">2.5</span>
+            </div>
+          </label>
+          <label style="font-size:0.82em">
+            Sonne
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="range" id="light_sun" min="0" max="5" step="0.1" value="2.5"
+                     oninput="updateLighting()" style="flex:1">
+              <span id="light_sun_val" style="min-width:28px;text-align:right">2.5</span>
+            </div>
+          </label>
+          <label style="font-size:0.82em">
+            Fülllicht
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="range" id="light_fill" min="0" max="5" step="0.1" value="1.8"
+                     oninput="updateLighting()" style="flex:1">
+              <span id="light_fill_val" style="min-width:28px;text-align:right">1.8</span>
+            </div>
+          </label>
+          <label style="font-size:0.82em">
+            Hintergrund
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="color" id="light_bg" value="#4a5068"
+                     oninput="updateLighting()" style="width:40px;height:24px;border:none;background:none;cursor:pointer">
+              <span style="font-size:0.9em;color:var(--text-dim)">Viewer-Hintergrund</span>
+            </div>
+          </label>
+        </div>
+      </details>
+
+      <div class="divider"></div>
+      <button id="btn-generate" class="btn btn-primary" onclick="generateModel()"
+              style="width:100%;justify-content:center;padding:10px">
+        🔄 Modell generieren
+      </button>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="prog-pct">0%</span>
+          <span id="prog-eta" style="color:var(--text-dim)"></span>
+        </div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="progress-bar"></div>
+        </div>
+      </div>
+      <div class="status-msg" id="status-msg">Bereit.</div>
+
+      <div class="build-log" id="build-log"></div>
+
+      <div class="divider"></div>
+
+      <!-- Current config summary -->
+      <div class="config-info" id="config-info">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.8px;
+                    text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">
+          Aktuelle Konfiguration
+        </div>
+        <table>
+          <tr><td>Breite</td>      <td id="ci-B">–</td></tr>
+          <tr><td>Tiefe</td>       <td id="ci-T">–</td></tr>
+          <tr><td>Wandhöhe</td>    <td id="ci-H">–</td></tr>
+          <tr><td>Überstand</td>   <td id="ci-OVER">–</td></tr>
+          <tr><td>Grundfläche</td> <td id="ci-area">–</td></tr>
+          <tr><td>Dachfläche</td>  <td id="ci-roof">–</td></tr>
+          <tr><td>Zuletzt geänd.</td><td id="ci-ts" style="font-size:10px">–</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: 3D Viewer ──────────────────────────────────────────────── -->
+  <div class="viewer-panel">
+    <div class="viewer-tabs">
+      <div class="viewer-tab active" onclick="switchTab('greenhouse')">🏠 Gesamtansicht</div>
+      <div class="viewer-tab" id="tab-part" onclick="switchTab('part')">🔩 Bauteil-Detail</div>
+    </div>
+
+    <!-- Gesamtansicht -->
+    <div class="viewer-container" id="view-greenhouse">
+      <canvas id="canvas-greenhouse"></canvas>
+      <div class="viewer-overlay" id="overlay-greenhouse">
+        <div class="spinner"></div>
+        <p>3D-Modell wird geladen…</p>
+      </div>
+      <div class="viewer-hint">🖱️ Drehen · Scrollen = Zoom · Rechtsklick = Pan</div>
+    </div>
+
+    <!-- Bauteil-Detail -->
+    <div class="viewer-container" id="view-part" style="display:none">
+      <canvas id="canvas-part"></canvas>
+      <div class="viewer-overlay" id="overlay-part">
+        <p style="font-size:14px">👈 Wähle ein Bauteil aus der Liste</p>
+      </div>
+      <div class="part-badge" id="part-badge">
+        <div class="pb-name" id="pb-name">–</div>
+        <div class="pb-info" id="pb-info">–</div>
+      </div>
+      <div class="viewer-hint">🖱️ Drehen · Scrollen = Zoom · Rechtsklick = Pan</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Parts List ──────────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-title" id="parts-panel-title">🔩 Bauteile</div>
+    <div class="panel-body">
+      <ul class="parts-list" id="parts-list">
+        <!-- wird per JS befüllt -->
+        <li style="color:var(--text-dim);font-size:12px;padding:10px 0">Lädt…</li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ── THREE.JS ───────────────────────────────────────────────────────── -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
+import { STLLoader }     from 'three/addons/loaders/STLLoader.js';
+
+// ── State ───────────────────────────────────────────────────────────────
+let params  = { B: 1200, T: 1200, H: 2200, OVER: 300,
+                DOOR_FRONT: true, DOOR_BACK: false, DOOR_LEFT: false, DOOR_RIGHT: false };
+let isBuilding = false;
+let pollTimer  = null;
+let activePartId = null;
+let autoRotateGH = true;
+
+// ── Shared setup helper ─────────────────────────────────────────────────
+function makeScene(canvas, bgColor = 0x4a5068) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 2.8;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(bgColor);
+  scene.fog = new THREE.FogExp2(bgColor, 0.00012);
+
+  const camera = new THREE.PerspectiveCamera(45, 1, 1, 50000);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.screenSpacePanning = true;
+  controls.minDistance = 100;
+  controls.maxDistance = 30000;
+
+  // Lights
+  const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
+  scene.add(ambientLight);
+
+  const sun = new THREE.DirectionalLight(0xffffff, 2.5);
+  sun.position.set(3000, 5000, 2000);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.near = 10;
+  sun.shadow.camera.far = 20000;
+  sun.shadow.camera.top = sun.shadow.camera.right = 4000;
+  sun.shadow.camera.bottom = sun.shadow.camera.left = -4000;
+  scene.add(sun);
+
+  const fillLight = new THREE.DirectionalLight(0xeef4ff, 1.8);
+  fillLight.position.set(-2000, 1000, -3000);
+  scene.add(fillLight);
+
+  const backLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  backLight.position.set(0, -2000, -3000);
+  scene.add(backLight);
+
+  // Grid
+  const grid = new THREE.GridHelper(10000, 40, 0x1e2235, 0x1e2235);
+  grid.material.opacity = 0.6;
+  grid.material.transparent = true;
+  scene.add(grid);
+
+  // Resize handler
+  function resize() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+
+  return { renderer, scene, camera, controls, grid, ambientLight, sun, fillLight, backLight };
+}
+
+function fitCameraToObject(camera, controls, object, offset = 1.6) {
+  const box = new THREE.Box3().setFromObject(object);
+  const center = box.getCenter(new THREE.Vector3());
+  const size   = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const fov    = camera.fov * (Math.PI / 180);
+  const dist   = (maxDim / 2) / Math.tan(fov / 2) * offset;
+
+  const dir = new THREE.Vector3(1.4, 0.9, 1.0).normalize();
+  camera.position.copy(center).addScaledVector(dir, dist);
+  camera.lookAt(center);
+  controls.target.copy(center);
+  controls.update();
+}
+
+// ── Greenhouse Viewer ───────────────────────────────────────────────────
+const canvasGH = document.getElementById('canvas-greenhouse');
+const {
+  renderer: rendererGH, scene: sceneGH, camera: cameraGH, controls: ctrlsGH,
+  ambientLight: ambGH, sun: sunGH, fillLight: fillGH, backLight: backGH
+} = makeScene(canvasGH, 0x4a5068);
+
+let ghModel = null;
+let animIdGH = null;
+
+function animateGH() {
+  animIdGH = requestAnimationFrame(animateGH);
+  if (autoRotateGH && ghModel) {
+    ghModel.rotation.y += 0.0015;
+  }
+  ctrlsGH.update();
+  rendererGH.render(sceneGH, cameraGH);
+}
+
+// Stop auto-rotate on user interaction
+canvasGH.addEventListener('pointerdown', () => { autoRotateGH = false; });
+canvasGH.addEventListener('wheel',       () => { autoRotateGH = false; });
+
+function showOverlay(id, show, msg) {
+  const el = document.getElementById(id);
+  if (show) {
+    el.classList.remove('hidden');
+    if (msg) el.querySelector('p').textContent = msg;
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+function loadGLB(bustCache = false) {
+  const url = '/glb/greenhouse' + (bustCache ? '?t=' + Date.now() : '');
+  showOverlay('overlay-greenhouse', true, '3D-Modell wird geladen…');
+
+  // Remove old model
+  if (ghModel) { sceneGH.remove(ghModel); ghModel = null; }
+
+  const loader = new GLTFLoader();
+  loader.load(
+    url,
+    (gltf) => {
+      ghModel = gltf.scene;
+      ghModel.traverse(child => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      sceneGH.add(ghModel);
+      fitCameraToObject(cameraGH, ctrlsGH, ghModel, 1.8);
+      showOverlay('overlay-greenhouse', false);
+      autoRotateGH = true;
+    },
+    (xhr) => {
+      const pct = xhr.total ? Math.round(xhr.loaded / xhr.total * 100) : '…';
+      showOverlay('overlay-greenhouse', true, `GLB laden… ${pct}%`);
+    },
+    (err) => {
+      showOverlay('overlay-greenhouse', true, '⚠️ GLB konnte nicht geladen werden.');
+      console.warn('GLB error:', err);
+    }
+  );
+}
+
+// Start animation loop
+animateGH();
+loadGLB();
+
+// ── Part Viewer ─────────────────────────────────────────────────────────
+const canvasPart = document.getElementById('canvas-part');
+const {
+  renderer: rendererPart, scene: scenePart, camera: cameraPart, controls: ctrlsPart
+} = makeScene(canvasPart, 0x12141e);
+
+let partModel = null;
+let animIdPart = null;
+let autoRotatePart = true;
+
+canvasPart.addEventListener('pointerdown', () => { autoRotatePart = false; });
+
+function animatePart() {
+  animIdPart = requestAnimationFrame(animatePart);
+  if (autoRotatePart && partModel) { partModel.rotation.y += 0.006; }
+  ctrlsPart.update();
+  rendererPart.render(scenePart, cameraPart);
+}
+animatePart();
+
+function loadPart(stlName, meta) {
+  showOverlay('overlay-part', true, `Lade ${meta.name}…`);
+
+  if (partModel) { scenePart.remove(partModel); partModel = null; }
+
+  const url = '/stl/' + stlName + '?t=' + Date.now();
+  const loader = new STLLoader();
+
+  loader.load(
+    url,
+    (geometry) => {
+      geometry.computeVertexNormals();
+      // Center geometry
+      geometry.center();
+
+      const color = new THREE.Color(meta.color || '#7a7a7a');
+      const material = new THREE.MeshPhysicalMaterial({
+        color,
+        metalness:  0.55,
+        roughness:  0.45,
+        envMapIntensity: 0.8,
+      });
+      // Wood materials
+      if (['wood'].includes(stlName)) {
+        material.metalness = 0.0;
+        material.roughness = 0.75;
+        material.color.set('#c8a060');
+      }
+      if (['screws', 'hardware'].includes(stlName)) {
+        material.metalness = 0.85;
+        material.roughness = 0.25;
+      }
+
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+
+      partModel = new THREE.Group();
+      partModel.add(mesh);
+      scenePart.add(partModel);
+
+      fitCameraToObject(cameraPart, ctrlsPart, partModel, 2.2);
+      showOverlay('overlay-part', false);
+      autoRotatePart = true;
+
+      // Update badge
+      const badge = document.getElementById('part-badge');
+      document.getElementById('pb-name').textContent = `${meta.positions} – ${meta.name}`;
+      document.getElementById('pb-info').textContent =
+        `${meta.abmessungen} · ${meta.anzahl}× · ${meta.material}`;
+      badge.classList.add('visible');
+    },
+    null,
+    (err) => {
+      showOverlay('overlay-part', true, '⚠️ STL nicht gefunden oder Fehler.');
+      console.warn('STL error:', err);
+    }
+  );
+}
+
+// ── Tab switching ────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+  const isGH   = tab === 'greenhouse';
+  document.getElementById('view-greenhouse').style.display = isGH ? 'block' : 'none';
+  document.getElementById('view-part').style.display       = isGH ? 'none'  : 'block';
+  document.querySelectorAll('.viewer-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0) === isGH);
+  });
+  // Resize renderers
+  setTimeout(() => {
+    [
+      [rendererGH,   canvasGH],
+      [rendererPart, canvasPart],
+    ].forEach(([r, c]) => {
+      const w = c.parentElement.clientWidth;
+      const h = c.parentElement.clientHeight;
+      r.setSize(w, h, false);
+    });
+  }, 10);
+};
+
+// ── Part list rendering ──────────────────────────────────────────────────
+function renderPartsList(parts) {
+  const list = document.getElementById('parts-list');
+  list.innerHTML = '';
+
+  let lastGroup = '';
+  parts.forEach(p => {
+    if (p.group !== lastGroup) {
+      const hdr = document.createElement('li');
+      hdr.className = 'parts-group-header';
+      hdr.textContent = p.group;
+      list.appendChild(hdr);
+      lastGroup = p.group;
+    }
+
+    const li = document.createElement('li');
+    li.className = 'part-item';
+    li.dataset.partId  = p.id;
+    li.dataset.stl     = p.stl;
+    li.innerHTML = `
+      <span class="part-dot" style="background:${p.color}"></span>
+      <span class="part-info">
+        <span class="part-pos">GWH_${p.nr}</span>
+        <span class="part-name">${p.name}</span>
+        <span class="part-mat">${p.abmessungen}</span>
+      </span>
+      <span class="part-qty">${p.anzahl}×</span>
+    `;
+    li.onclick = () => {
+      // Deselect all
+      document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
+      li.classList.add('active');
+      activePartId = p.id;
+      // Switch to part view tab
+      switchTab('part');
+      document.getElementById('tab-part').textContent = `🔩 ${p.name}`;
+      loadPart(p.stl, p);
+    };
+    list.appendChild(li);
+  });
+}
+
+// ── Load parts from API ──────────────────────────────────────────────────
+fetch('/api/parts')
+  .then(r => r.json())
+  .then(parts => {
+    renderPartsList(parts);
+    document.getElementById('parts-panel-title').textContent =
+      `🔩 Bauteile (${parts.length} Typen)`;
+  })
+  .catch(e => console.warn('parts fetch failed:', e));
+
+// ── Load current config ──────────────────────────────────────────────────
+function loadConfig() {
+  fetch('/api/config')
+    .then(r => r.json())
+    .then(cfg => {
+      params = cfg;
+      ['B', 'T', 'H', 'OVER'].forEach(k => {
+        const v = cfg[k];
+        const s = document.getElementById('slider-' + k);
+        const i = document.getElementById('input-'  + k);
+        if (s) s.value = v;
+        if (i) i.value = v;
+      });
+      // Checkboxen setzen
+      const df = document.getElementById('door_front');
+      const db = document.getElementById('door_back');
+      const dl = document.getElementById('door_left');
+      const dr = document.getElementById('door_right');
+      if (df) df.checked = cfg.DOOR_FRONT  ?? true;
+      if (db) db.checked = cfg.DOOR_BACK   ?? false;
+      if (dl) dl.checked = cfg.DOOR_LEFT   ?? false;
+      if (dr) dr.checked = cfg.DOOR_RIGHT  ?? false;
+      updateConfigInfo(cfg);
+    })
+    .catch(e => console.warn('config fetch failed:', e));
+}
+loadConfig();
+
+// ── Beleuchtung live anpassen ────────────────────────────────────────────
+window.updateLighting = function() {
+  const exposure = parseFloat(document.getElementById('light_exposure').value);
+  const ambient  = parseFloat(document.getElementById('light_ambient').value);
+  const sun      = parseFloat(document.getElementById('light_sun').value);
+  const fill     = parseFloat(document.getElementById('light_fill').value);
+  const bgHex    = document.getElementById('light_bg').value;
+  document.getElementById('light_exposure_val').textContent = exposure.toFixed(1);
+  document.getElementById('light_ambient_val').textContent  = ambient.toFixed(1);
+  document.getElementById('light_sun_val').textContent      = sun.toFixed(1);
+  document.getElementById('light_fill_val').textContent     = fill.toFixed(1);
+  rendererGH.toneMappingExposure = exposure;
+  ambGH.intensity  = ambient;
+  sunGH.intensity  = sun;
+  fillGH.intensity = fill;
+  const bgColor = new THREE.Color(bgHex);
+  sceneGH.background = bgColor;
+  sceneGH.fog = new THREE.FogExp2(bgColor.getHex(), 0.00012);
+};
+
+// ── markDirty (Checkboxen melden Änderung) ───────────────────────────────
+window.markDirty = function() {
+  params.DOOR_FRONT = document.getElementById('door_front')?.checked ?? true;
+  params.DOOR_BACK  = document.getElementById('door_back')?.checked  ?? false;
+  params.DOOR_LEFT  = document.getElementById('door_left')?.checked  ?? false;
+  params.DOOR_RIGHT = document.getElementById('door_right')?.checked ?? false;
+};
+
+// ── Param sync ───────────────────────────────────────────────────────────
+window.syncParam = function(key, value) {
+  const v = parseInt(value);
+  params[key] = v;
+  const s = document.getElementById('slider-' + key);
+  const i = document.getElementById('input-'  + key);
+  if (s && parseInt(s.value) !== v) s.value = v;
+  if (i && parseInt(i.value) !== v) i.value = v;
+  updateConfigInfo(params);
+};
+
+function updateConfigInfo(cfg) {
+  const B = cfg.B || 1200, T = cfg.T || 1200, H = cfg.H || 2200, OVER = cfg.OVER || 300;
+  document.getElementById('ci-B').textContent    = B + ' mm';
+  document.getElementById('ci-T').textContent    = T + ' mm';
+  document.getElementById('ci-H').textContent    = H + ' mm';
+  document.getElementById('ci-OVER').textContent = OVER + ' mm';
+  document.getElementById('ci-area').textContent = ((B/1000) * (T/1000)).toFixed(2) + ' m²';
+  const dachB = (B + 2*OVER)/1000, dachT = (T + 2*OVER)/1000;
+  const slope = 200/1200;
+  const rise  = dachT * slope;
+  const rafter = Math.sqrt(dachT**2 + rise**2);
+  document.getElementById('ci-roof').textContent = (dachB * rafter).toFixed(2) + ' m²';
+  if (cfg.last_updated && cfg.last_updated !== 'initial') {
+    document.getElementById('ci-ts').textContent = cfg.last_updated.replace('T', ' ').slice(0, 16);
+  }
+}
+
+// ── Generate model ───────────────────────────────────────────────────────
+window.generateModel = function() {
+  if (isBuilding) return;
+
+  // Sicherstellen dass Checkbox-Werte im params-Objekt aktuell sind
+  markDirty();
+
+  const btn = document.getElementById('btn-generate');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generierung läuft…';
+
+  fetch('/api/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      setStatusMsg(data.error, 'error');
+      btn.disabled = false;
+      btn.textContent = '🔄 Modell generieren';
+      return;
+    }
+    isBuilding = true;
+    startStatusPolling();
+  })
+  .catch(err => {
+    setStatusMsg('Verbindungsfehler: ' + err, 'error');
+    btn.disabled = false;
+    btn.textContent = '🔄 Modell generieren';
+  });
+};
+
+window.reloadGLB = function() {
+  loadGLB(true);
+};
+
+// ── Status polling ───────────────────────────────────────────────────────
+function startStatusPolling() {
+  clearInterval(pollTimer);
+  pollTimer = setInterval(pollStatus, 600);
+}
+
+function pollStatus() {
+  fetch('/api/status')
+    .then(r => r.json())
+    .then(s => {
+      updateProgressUI(s);
+      if (!s.building) {
+        clearInterval(pollTimer);
+        isBuilding = false;
+        const btn = document.getElementById('btn-generate');
+        btn.disabled = false;
+        btn.textContent = '🔄 Modell generieren';
+        if (!s.error) {
+          // Reload GLB after successful build
+          setTimeout(() => loadGLB(true), 500);
+        }
+        // Reload config info
+        loadConfig();
+      }
+    })
+    .catch(() => {});
+}
+
+function updateProgressUI(s) {
+  const pct = s.progress || 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+
+  const msgEl = document.getElementById('status-msg');
+  msgEl.textContent = s.message || '';
+  msgEl.className   = 'status-msg' + (s.error ? ' error' : pct === 100 ? ' ok' : '');
+
+  const logEl = document.getElementById('build-log');
+  if (s.log && s.log.length) {
+    logEl.classList.add('visible');
+    logEl.innerHTML = s.log.map(l =>
+      `<div>${escHtml(l)}</div>`
+    ).join('');
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  if (s.error) {
+    const errEl = document.getElementById('status-msg');
+    errEl.textContent = '❌ ' + (s.error.split('\n')[0] || 'Fehler');
+    errEl.className = 'status-msg error';
+    logEl.innerHTML += `<div style="color:#e94560">${escHtml(s.error.slice(0, 300))}</div>`;
+  }
+}
+
+function setStatusMsg(msg, type) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status-msg' + (type ? ' ' + type : '');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Check if build is already running on page load
+fetch('/api/status')
+  .then(r => r.json())
+  .then(s => {
+    updateProgressUI(s);
+    if (s.building) {
+      isBuilding = true;
+      startStatusPolling();
+    }
+  })
+  .catch(() => {});
+
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('SW registered:', r.scope))
+      .catch(e => console.warn('SW registration failed:', e));
+  });
+}
+</script>
+</body>
+</html>

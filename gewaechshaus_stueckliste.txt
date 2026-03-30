@@ -1,6 +1,6 @@
 ==========================================================================
   STUECKLISTE – Gewaechshaus 1200 x 1200 x 2200 mm
-  Aufklappbares Pultdach  (Neigung ca. 9.5 Grad  |  Delta-Hoehe = 300 mm)
+  Aufklappbares Pultdach  (Neigung ca. 9.5 Grad  |  Delta-Hoehe = 250 mm)
   Verbindungsmethode: AUSKLINKUNGEN  (Klauen-/Zapfenverbindungen)
 ==========================================================================
 
@@ -16,12 +16,12 @@
   Mittelstiel  (50×50 × 1900 mm)         1900    1      1900    1.90
   Türsturz  (50×50 × 1100 mm)            1100    1      1100    1.10
   Oberfüllung über Tür  (50×50 × 1100 mm)     1100    1      1100    1.10
-  Dachrahmen Vorderriegel  (Traufe)      1800    1      1800    1.80
-  Dachrahmen Hinterriegel  (Scharnier)     1800    1      1800    1.80
-  Dachrahmen Querstrebe  (Mitte)         1800    1      1800    1.80
-  Dachrahmen Seitenträger  (geneigt)     1825    2      3650    3.65
+  Dachrahmen Vorderriegel  (Traufe)      1500    1      1500    1.50
+  Dachrahmen Hinterriegel  (Scharnier)     1500    1      1500    1.50
+  Dachrahmen Querstrebe  (Mitte)         1500    1      1500    1.50
+  Dachrahmen Seitenträger  (geneigt)     1521    2      3042    3.04
   ------------------------------------------------------------------
-  Summe Hauptstruktur                                          31.05 m
+  Summe Hauptstruktur                                          29.54 m
 
 ─── 2. KLEMMSCHIENEN  (25 x 10 mm Flachprofil) ───────────────────────────
 
@@ -32,17 +32,17 @@
   Rückwand horizontal  (U/O)             1200    2      2400    2.40
   Rückwand vertikal  (L/R)               2200    2      4400    4.40
   Seitenwände horizontal  (je 2)         1200    4      4800    4.80
-  Dachrahmen Vorderkante                 1800    1      1800    1.80
-  Dachrahmen Hinterkante                 1800    1      1800    1.80
+  Dachrahmen Vorderkante                 1500    1      1500    1.50
+  Dachrahmen Hinterkante                 1500    1      1500    1.50
   ------------------------------------------------------------------
-  Summe Klemmschienen                                          22.00 m
+  Summe Klemmschienen                                          21.40 m
 
 ─── 3. SCHARNIERE & AUFKLAPPMECHANISMUS ──────────────────────────────────
 
   Schwerlast-Scharnier 100x100 mm Stahl, verzinkt    2 Stk
     Position: je 200 mm von den Hinterecken entfernt
     Montage:  aussen auf Obergurt hinten + Dachrahmen
-    Hoehe Scharnierkörper:  360 mm  (überbrückt Delta = 300 mm)
+    Hoehe Scharnierkörper:  335 mm  (überbrückt Delta = 250 mm)
 
   Gasdruckfeder  F ca. 300-400 N,  Hub >= 350 mm     1 Stk
     (alternativ: Teleskop-Stützstab mit Arretierstift)
@@ -55,10 +55,10 @@
   Vorderwand (Oberfüllung, über Türsturz): 0.30 m²
   Rückwand:                       2.64 m²
   Seitenwände je:                 2.64 m²  x 2
-  Dachfläche (Schrägmass 1825 mm): 3.29 m²
+  Dachfläche (Schrägmass 1521 mm): 2.28 m²
   ─
-  Summe Netto:                    11.51 m²
-  + 10 % Verschnitt:             12.66 m²
+  Summe Netto:                    10.50 m²
+  + 10 % Verschnitt:             11.55 m²
 
 ─── 5. VERBINDUNGSMATERIAL – AUSKLINKUNGEN  (Formschluss) ────────────────
 
@@ -202,18 +202,18 @@
 
 ─── 8. ZUSAMMENFASSUNG (gesamt) ────────────────────────────────────────────
 
-  Vierkantprofil 50x50 mm:         31.1 m
+  Vierkantprofil 50x50 mm:         29.5 m
   Vierkantprofil 30x30 mm (Türfl.): ca. 11.1 m
-  Klemmschiene 25x10 mm:           22.0 m
-  Folie PE 200 µm (inkl. 10 %):   12.7 m²
+  Klemmschiene 25x10 mm:           21.4 m
+  Folie PE 200 µm (inkl. 10 %):   11.6 m²
   KVH 60x60 mm (Querträger):       4.4 m  (4× 1100 mm)
   Laerche 116×22 mm (Dielen):  9.9 m  (9× 1100 mm)
   Trittholm 80×40 mm:              1× 1200 mm (volle Breite)
   Dachneigung:                      ca. 9.5 Grad
-  Dachüberstand (alle 4 Seiten):      300 mm
-  Dachrahmen-Abmessungen:             1800 × 1800 mm  (B×T)
-  Dachrahmen Schrägmass (Seitentr.): 1825 mm
-  Höhendifferenz Dach (Delta):       300 mm
+  Dachüberstand (alle 4 Seiten):      150 mm
+  Dachrahmen-Abmessungen:             1500 × 1500 mm  (B×T)
+  Dachrahmen Schrägmass (Seitentr.): 1521 mm
+  Höhendifferenz Dach (Delta):       250 mm
   Scharniere Dach:                   2x Schwerlast 100x100 Stahl
   Scharniere Türflügel:              4x Bandscharnier 100×80 mm
   Gasdruckfeder:                     1x ca. 300-400 N, Hub >= 350 mm
