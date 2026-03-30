@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# FreeCAD Backup
+*.FCStd1
+
+# Generierte Ausgabedateien (groß, werden zur Laufzeit erzeugt)
+gewaechshaus.FCStd
+gewaechshaus.step
+gewaechshaus.glb
+gewaechshaus_front.png
+gewaechshaus_iso.png
+gewaechshaus_stueckliste.txt
+gewaechshaus_stueckliste_3d.pdf
+gewaechshaus_zeichnung.pdf
+step_parts/
+
+# Temporäre Mesh-Dateien
+/tmp/gwh_meshes/
+
+# OS
+.DS_Store
+Thumbs.db
