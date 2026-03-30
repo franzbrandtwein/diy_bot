@@ -12,10 +12,8 @@ import numpy as np
 import json, struct, os
 
 STL_DIR  = "/tmp/gwh_meshes"
-OUT_GLB  = "/home/herrvorragend/projekte/gewaechshaus/gewaechshaus.glb"
-
-# ── Maße (mm, identisch mit freecad_model.py) ──────────────────────────────
-_proj = "/home/herrvorragend/projekte/gewaechshaus"
+_proj    = os.environ.get("GWH_PROJECT_DIR", "/home/herrvorragend/projekte/gewaechshaus")
+OUT_GLB  = os.path.join(_proj, "gewaechshaus.glb")
 try:
     import sys as _sys; _sys.path.insert(0, _proj)
     from params import B, T, H, OVER, P

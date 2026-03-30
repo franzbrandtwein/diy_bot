@@ -19,7 +19,8 @@ from flask import (Flask, Response, jsonify, render_template, request,
                    send_file, send_from_directory)
 
 # ── Pfade ──────────────────────────────────────────────────────────────────
-BASE_DIR    = pathlib.Path("/home/herrvorragend/projekte/gewaechshaus")
+BASE_DIR    = pathlib.Path(os.environ.get("GWH_PROJECT_DIR",
+              "/home/herrvorragend/projekte/gewaechshaus"))
 CONFIG_FILE = BASE_DIR / "config.json"
 PARAMS_FILE = BASE_DIR / "params.py"
 GLB_FILE    = BASE_DIR / "gewaechshaus.glb"

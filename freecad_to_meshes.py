@@ -14,7 +14,7 @@ os.makedirs(OUT_DIR, exist_ok=True)
 # ── Maße (identisch mit freecad_model.py) ──────────────────────────────────
 # Parameter werden von params.py importiert (Web-Konfigurator)
 import os as _os
-_proj = "/home/herrvorragend/projekte/gewaechshaus"
+_proj = os.environ.get("GWH_PROJECT_DIR", "/home/herrvorragend/projekte/gewaechshaus")
 try:
     import sys as _sys; _sys.path.insert(0, _proj)
     from params import B, T, H, OVER, P

@@ -30,7 +30,7 @@ import Part
 import math
 import os
 
-OUT = "/home/herrvorragend/projekte/gewaechshaus"
+OUT = os.environ.get("GWH_PROJECT_DIR", "/home/herrvorragend/projekte/gewaechshaus")
 os.makedirs(OUT, exist_ok=True)
 
 # === Maße =================================================================
