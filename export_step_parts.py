@@ -15,35 +15,17 @@ Alle übrigen Bauteile werden als Rohgeometrie ohne Cuts exportiert.
 
 import sys, os, math
 
-# ── FreeCAD-Pfad einhängen, falls nötig ──────────────────────────────────────
-for candidate in [
-    "/usr/lib64/FreeCAD/lib",
-    "/usr/lib/freecad/lib",
-    "/usr/lib/freecad-python3/lib",
-    "/usr/local/lib/freecad/lib",
-]:
-    if os.path.isdir(candidate) and candidate not in sys.path:
-        sys.path.insert(0, candidate)
-
-import FreeCAD
-from FreeCAD import Base
-import Part
+import cadquery as cq
+from cadquery import Compound
 
 
 # ── Hilfsfunktion: Quader mit Boolean Cuts ───────────────────────────────────
 def make_notched_box(lx, ly, lz, cuts):
-    """
-    Erstellt einen Quader (lx × ly × lz) mit Boolean Cuts.
-
-    cuts: Liste von (cx, cy, cz, clx, cly, clz)
-          cx/cy/cz  = Startpunkt des Cut-Quaders
-          clx/cly/clz = Ausmaß des Cut-Quaders
-    """
-    shape = Part.makeBox(lx, ly, lz)
+    sh = cq.Workplane("XY").box(lx, ly, lz).translate((lx/2, ly/2, lz/2))
     for (cx, cy, cz, clx, cly, clz) in cuts:
-        cut_box = Part.makeBox(clx, cly, clz, Base.Vector(cx, cy, cz))
-        shape = shape.cut(cut_box)
-    return shape
+        cutter = cq.Workplane("XY").box(clx, cly, clz).translate((cx+clx/2, cy+cly/2, cz+clz/2))
+        sh = sh.cut(cutter)
+    return sh
 
 # ── Ausgabeverzeichnis ────────────────────────────────────────────────────────
 OUT_DIR = "/home/herrvorragend/projekte/gewaechshaus/step_parts"
@@ -180,23 +162,23 @@ for entry in PARTS:
     try:
         if shape_type == "box":
             lx, ly, lz = dims
-            shape = Part.makeBox(lx, ly, lz)
+            sh = cq.Workplane("XY").box(lx, ly, lz).translate((lx/2, ly/2, lz/2))
             dims_str = f"{lx}×{ly}×{lz} mm (L×B×H)"
 
         elif shape_type == "notched_box":
             lx, ly, lz, cuts = dims
-            shape = make_notched_box(lx, ly, lz, cuts)
+            sh = make_notched_box(lx, ly, lz, cuts)
             dims_str = f"{lx}×{ly}×{lz} mm (L×B×H), {len(cuts)} Cut(s)"
 
         elif shape_type == "cylinder":
             r, h = dims
-            shape = Part.makeCylinder(r, h)
+            sh = cq.Workplane("XY").cylinder(h, r).translate((0, 0, h/2))
             dims_str = f"Ø{r*2}×{h} mm"
         else:
             raise ValueError(f"Unbekannter shape_type: {shape_type}")
 
-        # STEP-Export (exportStep direkt auf dem Shape-Objekt)
-        shape.exportStep(filepath)
+        # STEP-Export
+        cq.exporters.export(sh.val(), filepath)
 
         ok = os.path.isfile(filepath) and os.path.getsize(filepath) > 0
         status = "OK  " if ok else "FAIL"

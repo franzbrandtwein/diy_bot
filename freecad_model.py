@@ -25,8 +25,8 @@ Verbindungsmethode: Ausklinkungen (Klauen-/Zapfenverbindungen mit Schraubensiche
 Ausführung: echo "exec(open('freecad_model.py').read()); quit()" | FreeCAD -c
 """
 
-import FreeCAD
-import Part
+import cadquery as cq
+from cadquery import Compound
 import math
 import os
 
@@ -81,9 +81,7 @@ RISE     = H_DACH_H - H_DACH_V        # = 300 mm  (Höhendiff. Dachrahmen 1800mm
 
 HNG_W = 100;  HNG_D = 20;  HNG_H = (H_DACH_H - H) + P + 60   # = 360 mm
 
-doc        = FreeCAD.newDocument("Gewaechshaus_Ausklinkung")
 all_shapes = []
-all_feats  = []
 
 # === Hilfsfunktionen =====================================================
 def box_notched(name, x, y, z, lx, ly, lz, cuts=None):
@@ -91,18 +89,16 @@ def box_notched(name, x, y, z, lx, ly, lz, cuts=None):
     if lx <= 0 or ly <= 0 or lz <= 0:
         print("  SKIP %s: Null-Dim" % name)
         return None
-    sh = Part.makeBox(lx, ly, lz, FreeCAD.Vector(x, y, z))
+    sh = cq.Workplane("XY").box(lx, ly, lz).translate((x+lx/2, y+ly/2, z+lz/2))
     if cuts:
         for (cx, cy, cz, clx, cly, clz) in cuts:
             if clx > 0 and cly > 0 and clz > 0:
                 try:
-                    cutter = Part.makeBox(clx, cly, clz, FreeCAD.Vector(cx, cy, cz))
+                    cutter = cq.Workplane("XY").box(clx, cly, clz).translate((cx+clx/2, cy+cly/2, cz+clz/2))
                     sh = sh.cut(cutter)
                 except Exception as e:
                     print("  WARN %s cut: %s" % (name, e))
-    feat = doc.addObject("Part::Feature", name)
-    feat.Shape = sh
-    all_shapes.append(sh);  all_feats.append(feat)
+    all_shapes.append(sh)
     return sh
 
 def box(name, x, y, z, lx, ly, lz):
@@ -116,17 +112,22 @@ def rafter_yz(name, x, y_s, z_s, dy, dz, x_w=None, prof=None):
     if L < 1e-6:
         return None
     ny = -dz / L;  nz = dy / L
-    p1 = FreeCAD.Vector(x,       y_s,            z_s)
-    p2 = FreeCAD.Vector(x,       y_s + ny*prof,  z_s + nz*prof)
-    p3 = FreeCAD.Vector(x + x_w, y_s + ny*prof,  z_s + nz*prof)
-    p4 = FreeCAD.Vector(x + x_w, y_s,            z_s)
-    edges  = [Part.makeLine(p1, p2), Part.makeLine(p2, p3),
-              Part.makeLine(p3, p4), Part.makeLine(p4, p1)]
-    solid  = Part.Face(Part.Wire(edges)).extrude(FreeCAD.Vector(0, dy, dz))
-    feat   = doc.addObject("Part::Feature", name)
-    feat.Shape = solid
-    all_shapes.append(solid);  all_feats.append(feat)
-    return solid
+    pts = [
+        (y_s,                z_s),
+        (y_s + ny*prof,      z_s + nz*prof),
+        (y_s + dy + ny*prof, z_s + dz + nz*prof),
+        (y_s + dy,           z_s + dz),
+    ]
+    sh = (cq.Workplane("YZ")
+          .moveTo(pts[0][0], pts[0][1])
+          .lineTo(pts[1][0], pts[1][1])
+          .lineTo(pts[2][0], pts[2][1])
+          .lineTo(pts[3][0], pts[3][1])
+          .close()
+          .extrude(x_w)
+          .translate((x, 0, 0)))
+    all_shapes.append(sh)
+    return sh
 
 # === 1. ECKSTIELE  mit Zapfen Typ 4 =====================================
 # Stiel = STIEL_H = 2175 mm (Zapfen bei z=2150..2175, Quer. 50x25)
@@ -436,20 +437,15 @@ BOLT_M8  = 8
 def bolt_cyl(name, cx, cy, cz, axis, L=80, d=10):
     r = d / 2.0
     if axis == 'x':
-        origin  = FreeCAD.Vector(cx,       cy - r, cz - r)
-        dir_vec = FreeCAD.Vector(1, 0, 0)
+        sh = cq.Workplane("YZ").cylinder(L, r).translate((cx+L/2, cy, cz))
     elif axis == 'y':
-        origin  = FreeCAD.Vector(cx - r, cy,       cz - r)
-        dir_vec = FreeCAD.Vector(0, 1, 0)
+        sh = cq.Workplane("XZ").cylinder(L, r).translate((cx, cy+L/2, cz))
     else:
-        origin  = FreeCAD.Vector(cx - r, cy - r, cz)
-        dir_vec = FreeCAD.Vector(0, 0, 1)
-    sh   = Part.makeCylinder(r, L, origin, dir_vec)
-    feat = doc.addObject("Part::Feature", name)
-    feat.Shape = sh
-    all_shapes.append(sh);  all_feats.append(feat)
+        sh = cq.Workplane("XY").cylinder(L, r).translate((cx, cy, cz+L/2))
+    all_shapes.append(sh)
     return sh
 
+_n_scr_before = len(all_shapes)
 # Typ 4 – M10x80 von oben, 2x pro Ecke
 _corners = [("VL", P//2, P//2), ("VR", B-P//2, P//2),
             ("HL", P//2, T-P//2), ("HR", B-P//2, T-P//2)]
@@ -475,23 +471,14 @@ _ms_cx = MITTELSTIEL_X + P // 2
 bolt_cyl("SCR_MS_B", _ms_cx, P//2, int(P*0.35),    'y', L=40, d=BOLT_M8)
 bolt_cyl("SCR_MS_T", _ms_cx, P//2, int(DH-P*0.35), 'y', L=40, d=BOLT_M8)
 
-_n_scr = sum(1 for f in all_feats if f.Label.startswith('SCR_'))
+_n_scr = len(all_shapes) - _n_scr_before
 print("  -> %d Schrauben-Zylinder erstellt" % _n_scr)
 
 # === 9. COMPOUND + EXPORT =================================================
 print("Erstelle Compound aus %d Einzelteilen ..." % len(all_shapes))
-compound  = Part.makeCompound(all_shapes)
-comp_feat = doc.addObject("Part::Feature", "Gewaechshaus_Ausklinkung")
-comp_feat.Shape = compound
-
-doc.recompute()
-
-fcstd = os.path.join(OUT, "gewaechshaus.FCStd")
-doc.saveAs(fcstd)
-print("ok FCStd: %s" % fcstd)
-
+compound = Compound.makeCompound([s.val() for s in all_shapes])
 step = os.path.join(OUT, "gewaechshaus.step")
-Part.export(all_feats, step)
+cq.exporters.export(compound, step)
 print("ok STEP: %s" % step)
 
 _angle = math.degrees(math.atan2(RISE, T + 2*OVER))

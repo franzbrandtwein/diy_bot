@@ -5,7 +5,8 @@ gruppiert Teile nach Material und exportiert je Gruppe eine STL-Datei.
 
 Aufruf: FreeCADCmd freecad_to_meshes.py
 """
-import FreeCAD, Part, MeshPart, Mesh
+import cadquery as cq
+from cadquery import Compound
 import math, os, sys
 
 OUT_DIR = "/tmp/gwh_meshes"
@@ -58,12 +59,12 @@ def add(group, shape):
 def box_notched(group, x, y, z, lx, ly, lz, cuts=None):
     if lx <= 0 or ly <= 0 or lz <= 0:
         return None
-    sh = Part.makeBox(lx, ly, lz, FreeCAD.Vector(x, y, z))
+    sh = cq.Workplane("XY").box(lx, ly, lz).translate((x+lx/2, y+ly/2, z+lz/2))
     if cuts:
         for (cx, cy, cz, clx, cly, clz) in cuts:
             if clx > 0 and cly > 0 and clz > 0:
                 try:
-                    c = Part.makeBox(clx, cly, clz, FreeCAD.Vector(cx, cy, cz))
+                    c = cq.Workplane("XY").box(clx, cly, clz).translate((cx+clx/2, cy+cly/2, cz+clz/2))
                     sh = sh.cut(c)
                 except Exception as e:
                     print("  WARN cut:", e)
@@ -79,25 +80,31 @@ def rafter_yz(group, x, y_s, z_s, dy, dz, x_w=None, prof=None):
     L = math.sqrt(dy*dy + dz*dz)
     if L < 1e-6: return None
     ny = -dz / L; nz = dy / L
-    p1 = FreeCAD.Vector(x,       y_s,           z_s)
-    p2 = FreeCAD.Vector(x,       y_s+ny*prof,   z_s+nz*prof)
-    p3 = FreeCAD.Vector(x+x_w,   y_s+ny*prof,   z_s+nz*prof)
-    p4 = FreeCAD.Vector(x+x_w,   y_s,           z_s)
-    edges = [Part.makeLine(p1,p2), Part.makeLine(p2,p3),
-             Part.makeLine(p3,p4), Part.makeLine(p4,p1)]
-    sh = Part.Face(Part.Wire(edges)).extrude(FreeCAD.Vector(0, dy, dz))
+    pts = [
+        (y_s,                z_s),
+        (y_s + ny*prof,      z_s + nz*prof),
+        (y_s + dy + ny*prof, z_s + dz + nz*prof),
+        (y_s + dy,           z_s + dz),
+    ]
+    sh = (cq.Workplane("YZ")
+          .moveTo(pts[0][0], pts[0][1])
+          .lineTo(pts[1][0], pts[1][1])
+          .lineTo(pts[2][0], pts[2][1])
+          .lineTo(pts[3][0], pts[3][1])
+          .close()
+          .extrude(x_w)
+          .translate((x, 0, 0)))
     add(group, sh)
     return sh
 
 def bolt_cyl(group, cx, cy, cz, axis, L=80, d=10):
     r = d / 2.0
     if axis == 'x':
-        origin = FreeCAD.Vector(cx, cy-r, cz-r); dv = FreeCAD.Vector(1,0,0)
+        sh = cq.Workplane("YZ").cylinder(L, r).translate((cx+L/2, cy, cz))
     elif axis == 'y':
-        origin = FreeCAD.Vector(cx-r, cy, cz-r); dv = FreeCAD.Vector(0,1,0)
+        sh = cq.Workplane("XZ").cylinder(L, r).translate((cx, cy+L/2, cz))
     else:
-        origin = FreeCAD.Vector(cx-r, cy-r, cz); dv = FreeCAD.Vector(0,0,1)
-    sh = Part.makeCylinder(r, L, origin, dv)
+        sh = cq.Workplane("XY").cylinder(L, r).translate((cx, cy, cz+L/2))
     add(group, sh)
     return sh
 
@@ -325,15 +332,12 @@ for gname, shapes in groups.items():
     if not shapes:
         print("  SKIP %s (leer)" % gname)
         continue
-    compound = Part.makeCompound(shapes)
     try:
-        mesh = MeshPart.meshFromShape(Shape=compound,
-                                      LinearDeflection=0.5,
-                                      AngularDeflection=0.3)
+        group_compound = Compound.makeCompound([s.val() for s in shapes])
         out_path = os.path.join(OUT_DIR, "%s.stl" % gname)
-        mesh.write(out_path)
-        print("  OK  %s  (%d Faces, -> %s)" % (gname, mesh.CountFacets, out_path))
+        cq.exporters.export(group_compound, out_path, cq.exporters.ExportTypes.STL)
+        print("  OK  %s  (-> %s)" % (gname, out_path))
     except Exception as e:
         print("  ERR %s: %s" % (gname, e))
 
-print("FreeCAD-Export abgeschlossen.")
+print("CadQuery-Export abgeschlossen.")

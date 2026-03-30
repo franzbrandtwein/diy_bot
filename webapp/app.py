@@ -355,10 +355,10 @@ def regenerate(params):
         write_params(params)
 
         set_status(8, "🏗️  FreeCAD-Modell erstellen (kann 1–3 min dauern)…")
-        run_step(["FreeCADCmd", str(BASE_DIR / "freecad_model.py")], timeout=300)
+        run_step(["python3", str(BASE_DIR / "freecad_model.py")], timeout=300)
 
         set_status(35, "📐 STL-Meshes exportieren…")
-        run_step(["FreeCADCmd", str(BASE_DIR / "freecad_to_meshes.py")], timeout=300)
+        run_step(["python3", str(BASE_DIR / "freecad_to_meshes.py")], timeout=300)
 
         set_status(62, "🔮 GLB assemblieren…")
         run_step(["python3", str(BASE_DIR / "assemble_glb.py")])
@@ -370,7 +370,7 @@ def regenerate(params):
         run_step(["python3", str(BASE_DIR / "stueckliste_pdf.py")])
 
         set_status(93, "📦 STEP-Einzelbauteile exportieren…")
-        run_step(["FreeCADCmd", str(BASE_DIR / "export_step_parts.py")], timeout=300)
+        run_step(["python3", str(BASE_DIR / "export_step_parts.py")], timeout=300)
 
         set_status(100, "✅ Fertig! Modell wurde erfolgreich regeneriert.")
 
