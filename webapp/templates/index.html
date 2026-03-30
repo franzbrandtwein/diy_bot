@@ -799,11 +799,8 @@ function makeScene(canvas, bgColor = 0x4a5068) {
   backLight.position.set(0, -2000, -3000);
   scene.add(backLight);
 
-  // Grid
-  const grid = new THREE.GridHelper(10000, 40, 0x1e2235, 0x1e2235);
-  grid.material.opacity = 0.6;
-  grid.material.transparent = true;
-  scene.add(grid);
+  // Grid ausgeblendet
+  // const grid = new THREE.GridHelper(10000, 40, 0x1e2235, 0x1e2235);
 
   // Resize handler
   function resize() {
@@ -816,7 +813,7 @@ function makeScene(canvas, bgColor = 0x4a5068) {
   resize();
   new ResizeObserver(resize).observe(canvas.parentElement);
 
-  return { renderer, scene, camera, controls, grid, ambientLight, sun, fillLight, backLight };
+  return { renderer, scene, camera, controls, ambientLight, sun, fillLight, backLight };
 }
 
 function fitCameraToObject(camera, controls, object, offset = 1.6) {
@@ -879,6 +876,8 @@ function loadGLB(bustCache = false) {
     url,
     (gltf) => {
       ghModel = gltf.scene;
+      // FreeCAD = Z-up → Three.js = Y-up: −90° um X-Achse
+      ghModel.rotation.x = -Math.PI / 2;
       ghModel.traverse(child => {
         if (child.isMesh) {
           child.castShadow = true;
@@ -964,6 +963,8 @@ function loadPart(stlName, meta) {
 
       partModel = new THREE.Group();
       partModel.add(mesh);
+      // FreeCAD = Z-up → Three.js = Y-up
+      partModel.rotation.x = -Math.PI / 2;
       scenePart.add(partModel);
 
       fitCameraToObject(cameraPart, ctrlsPart, partModel, 2.2);
