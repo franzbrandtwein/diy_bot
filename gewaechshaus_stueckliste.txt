@@ -1,0 +1,233 @@
+==========================================================================
+  STUECKLISTE – Gewaechshaus 1200 x 1200 x 2200 mm
+  Aufklappbares Pultdach  (Neigung ca. 9.5 Grad  |  Delta-Hoehe = 300 mm)
+  Verbindungsmethode: AUSKLINKUNGEN  (Klauen-/Zapfenverbindungen)
+==========================================================================
+
+─── 1. HAUPTSTRUKTUR  (50 x 50 mm Vierkantprofil, Stahl/Alu) ─────────────
+
+  Bezeichnung                          L (mm)  Stk Summe(mm) Summe(m)
+  ------------------------------------------------------------------
+  Eckstiel  (Stiel-H = 2175 mm)          2175    4      8700    8.70
+  Bodenrahmen Längsriegel (BR_L/R)       1200    2      2400    2.40
+  Bodenrahmen Querriegel  (BR_V/H)       1100    2      2200    2.20
+  Obergurt Längsriegel    (OG_L/R)       1200    2      2400    2.40
+  Obergurt Querriegel     (OG_V/H)       1100    2      2200    2.20
+  Mittelstiel  (50×50 × 1900 mm)         1900    1      1900    1.90
+  Türsturz  (50×50 × 1100 mm)            1100    1      1100    1.10
+  Oberfüllung über Tür  (50×50 × 1100 mm)     1100    1      1100    1.10
+  Dachrahmen Vorderriegel  (Traufe)      1800    1      1800    1.80
+  Dachrahmen Hinterriegel  (Scharnier)     1800    1      1800    1.80
+  Dachrahmen Querstrebe  (Mitte)         1800    1      1800    1.80
+  Dachrahmen Seitenträger  (geneigt)     1825    2      3650    3.65
+  ------------------------------------------------------------------
+  Summe Hauptstruktur                                          31.05 m
+
+─── 2. KLEMMSCHIENEN  (25 x 10 mm Flachprofil) ───────────────────────────
+
+  Bezeichnung                          L (mm)  Stk Summe(mm) Summe(m)
+  ------------------------------------------------------------------
+  Vorderwand horizontal  (U/O)           1200    2      2400    2.40
+  Vorderwand vertikal  (L/R)             2200    2      4400    4.40
+  Rückwand horizontal  (U/O)             1200    2      2400    2.40
+  Rückwand vertikal  (L/R)               2200    2      4400    4.40
+  Seitenwände horizontal  (je 2)         1200    4      4800    4.80
+  Dachrahmen Vorderkante                 1800    1      1800    1.80
+  Dachrahmen Hinterkante                 1800    1      1800    1.80
+  ------------------------------------------------------------------
+  Summe Klemmschienen                                          22.00 m
+
+─── 3. SCHARNIERE & AUFKLAPPMECHANISMUS ──────────────────────────────────
+
+  Schwerlast-Scharnier 100x100 mm Stahl, verzinkt    2 Stk
+    Position: je 200 mm von den Hinterecken entfernt
+    Montage:  aussen auf Obergurt hinten + Dachrahmen
+    Hoehe Scharnierkörper:  360 mm  (überbrückt Delta = 300 mm)
+
+  Gasdruckfeder  F ca. 300-400 N,  Hub >= 350 mm     1 Stk
+    (alternativ: Teleskop-Stützstab mit Arretierstift)
+  Kugelzapfen-Halterung für Gasdruckfeder            2 Stk
+  Montageschrauben Scharnier M8x50 mm (verzinkt)     8 Stk
+  Unterlegscheiben M8 DIN 125                       16 Stk
+
+─── 4. FOLIENBEDARF  (PE 200 µm) ─────────────────────────────────────────
+
+  Vorderwand (Oberfüllung, über Türsturz): 0.30 m²
+  Rückwand:                       2.64 m²
+  Seitenwände je:                 2.64 m²  x 2
+  Dachfläche (Schrägmass 1825 mm): 3.29 m²
+  ─
+  Summe Netto:                    11.51 m²
+  + 10 % Verschnitt:             12.66 m²
+
+─── 5. VERBINDUNGSMATERIAL – AUSKLINKUNGEN  (Formschluss) ────────────────
+
+  *** FORMSCHLÜSSIGE VERBINDUNG – Schrauben nur zur LAGESICHERUNG! ***
+  *** KEINE Eckverbinder erforderlich ***
+
+  Ausklinkungstypen:
+    Typ 1 – Vollausklinkung  (Eckknoten Boden + OG):
+       Längsriegel läuft durch, Querriegel mit 50x50 mm Kerbe an Enden.
+       Scherkräfte formschlüssig aufgenommen.
+    Typ 2 – Halbausklinkung / Überblattung  (Kreuzknoten Pfetten):
+       Beide Profile 25 mm tief ausgeklinkt, greifen ineinander.
+    Typ 3 – Zapfensitz  (Bodenknoten Stiel-auf-Rahmen):
+       50x50x25 mm Tasche im Längsriegel, Stiel eingestellt.
+    Typ 4 – Zapfen/Tasche  (Kopfknoten OG auf Stiel):
+       Stielkopf 25 mm lang auf 50x25 mm abgefräst, OG hat Tasche.
+
+  M10x80 mm + Mutter + Scheiben  DIN 931/934/125, verzinkt:
+    Obergurt-Stiel  Typ 4: 4 Ecken x 2 Schrauben     =  8 Stk
+  M10x80  Summe:                                     ca.  8 Stk
+
+  M8x60 mm + Mutter + Scheiben  DIN 931/934/125, verzinkt:
+    Bodenknoten Typ 3  (X + Y): 4 Ecken x 4 Schrauben = 16 Stk
+    Zwischenknoten + Querriegel-Sicherung Typ 1:        =  8 Stk
+  M8x60  Summe:                                      ca. 24 Stk
+
+  M8x40 mm + Mutter + Scheiben  DIN 931/934/125, verzinkt:
+    Halbausklinkungen Pfetten / Mittelstiel Typ 2:        =  4 Stk
+  M8x40  Summe:                                      ca.  4 Stk
+
+  M6x30 mm  DIN 933  (Klemmschienen Folie):          ca. 40 Stk
+
+  Sechskantmuttern M10  DIN 934, verzinkt:           ca.  8 Stk
+  Sechskantmuttern M8   DIN 934, verzinkt:           ca. 32 Stk
+  Sechskantmuttern M6   DIN 934:                     ca. 40 Stk
+  Unterlegscheiben M10  DIN 125, verzinkt:           ca. 16 Stk
+  Unterlegscheiben M8   DIN 125, verzinkt:           ca. 64 Stk
+  Unterlegscheiben M6   DIN 125:                     ca. 80 Stk
+  Dübel / Bodenhülsen 50x50 mm:                           4 Stk
+
+  KEINE Winkelverbinder / Eckverbinder!
+
+─── 6. AUSKLINKUNGSDETAILS – Fertigungsmasse ─────────────────────────────
+
+  Typ 1 – Vollausklinkung  50x50 mm Kerbe an Enden der Querriegel:
+    Massangabe: 50 mm Tiefe x 50 mm Breite (voller Profilquerschnitt)
+    Werkzeug:  Winkelschleifer / Bandsäge / Trennscheibe
+    Bohrloch:  1x M8 durch Kreuzungspunkt, senkrecht  (d=9 mm)
+
+  Typ 2 – Halbausklinkung  50x25 mm an beiden Profilen:
+    Massangabe: 50 mm breit x 25 mm tief (halbe Profilhöhe)
+    Werkzeug:  Fräser / Winkelschleifer
+    Bohrloch:  1x M8 durch Überblattung (d=9 mm)
+
+  Typ 3 – Zapfensitz  50x50x25 mm Tasche in Bodenrahmen-Längsriegel:
+    Massangabe: 50x50 mm Grundriss, 25 mm Tiefe (= halbe Profilhöhe)
+    Werkzeug:  Fräser oder Schweissnaht-Anschlag
+    Bohrlöcher: 2x M8 seitlich durch Rahmen in Stiel (d=9 mm)
+
+  Typ 4 – Zapfen am Stielkopf, Tasche im Obergurt:
+    Stiel:  Top 25 mm auf 50x25 mm abfräsen (hintere Hälfte entfernen)
+    OG:     50x25x25 mm Tasche in Unterseite fräsen
+    Stiel-Gesamtlänge: 2175 mm  (= H - P/2 = 2200 - 25)
+    Bohrloch: 1x M10 von oben, d=11 mm, durch OG in Stielkopf
+
+─── 7. HOLZDIELENBODEN auf Querträgern ────────────────────────────────────
+
+  *** NEUES BAUTEIL – integriert in Stahlbodenrahmen ***
+
+  Querträger (Lagerhölzer):
+    Material:   KVH 60x60 mm (Konstruktionsvollholz)
+    Länge:      1100 mm  (lichte Weite innen: B - 2×P = 1100 mm)
+    Anzahl:     4 Stück
+    Achsabstand: ca. 286 mm
+    Befestigung: 2× M6×40 je Auflager (links + rechts)
+    z-Position: Oberkante Bodenrahmen (z = 50 mm) bis z = 110 mm
+
+  KVH 60x60 (Quertraeger)                1100    4      4400    4.40
+
+  Holzdielen (Laerche/Kiefer, Nut+Feder):
+    Material:   Laerchenholz 116×22 mm  (nom. ~120 mm Breite)
+    Länge:      1100 mm  (lichte Tiefe innen: T - 2×P = 1100 mm)
+    Anzahl:     9 Stück
+    Verlegerichtung: längs (Y-Richtung, parallel zu Seitenwänden)
+    Fuge:       4 mm zwischen den Dielen (Belüftung)
+    Befestigung: Dielenklammern oder 2× Edelstahlschraube 4×50 mm versetzt
+    OK Dielenboden: z = 132 mm (50 + 60 + 22) über UK Bodenrahmen
+
+  Laerche 116×22 mm (Dielen)             1100    9      9900    9.90
+
+  Trittholm (Türschwelle):
+    Material:   KVH/Nadelholz 80×40 mm
+    Länge:      1200 mm  (= volle Außenbreite B)
+    Anzahl:     1 Stück
+    Position:   Auf Bodenrahmen-Vorderriegel, gesamte Breite (x = 0..1200)
+    z-Position: z = 50..90 mm
+
+  Trittholm 80×40 mm                     1200    1      1200    1.20
+
+  VERBINDUNGSMATERIAL Holzboden:
+
+  M6×40 mm DIN 933 verzinkt (QT-Befestigung):     8 Stk
+    (2 Schrauben je Auflager × 4 Querträger × 2 Auflagerpunkte)
+  Sechskantmuttern M6  DIN 934:                    8 Stk
+  Unterlegscheiben M6  DIN 125:                   16 Stk
+  Dielenklammern (A2-Edelstahl, 60mm):      ca.  60 Stk
+    (oder alternativ: Edelstahlschraube 4×50 mm,  ca. 80 Stk)
+  Holzschrauben Trittholm 5×60 mm:                 4 Stk
+
+  ZUSAMMENFASSUNG HOLZBODEN:
+
+  KVH 60×60 mm (Querträger): 4× 1100 mm = 4.4 m
+  Laerche 116×22 mm (Dielen): 9× 1100 mm = 9.9 m
+  Trittholm 80×40 mm:        1× 1200 mm = 1.20 m
+  Holzbedarf gesamt:                        15.5 lfdm
+
+─── 7b. ZWEIFLÜGELIGE TÜR – Konstruktionsdetails ─────────────────────────
+
+  Türgesamtbreite:      1200 mm (= volle Außenbreite)
+  Lichte Breite je Flügel: 575 mm  (= (B - P_Mittelstiel) / 2)
+  Türhöhe (licht):     1900 mm
+  Türsturz Höhe:       1950 mm  (= 1900 + 50)
+
+  Rahmenprofil Türflügel (30×30 mm Vierkantprofil):
+  Türflügel-Rahmen 30×30 mm                                    11.05
+    Je Flügel: 2× 575 mm (horizontal) + 2× 1900 mm (vertikal) + 1× 575 mm (Mittelstrebe)
+    Gesamt: 2 Flügel × (2×575 + 2×1900 + 1×575) = ca. 11050 mm = 11.1 m
+
+  Scharniere Türflügel:
+    100×80 mm Bandscharnier, Stahl verzinkt:      4 Stk
+    (je 2 pro Flügel, außen an Eckstielen)
+    Position: z = 300 mm und z = 1600 mm
+
+  Türverschluss:
+    Karabinerhaken / Riegel mittig am Mittelstiel: 1 Stk
+    Türgriff 100 mm innen/außen:                   2 Stk  (optional)
+
+  Schrauben Türflügel-Scharniere M8×50 mm:         8 Stk
+  Folie je Türflügel: 575 × 1900 mm (Außenmaß Flügel)
+  Klemmschienen 25×10 mm je Flügel (Umfang):  ca. 5.0 m
+
+─── 8. ZUSAMMENFASSUNG (gesamt) ────────────────────────────────────────────
+
+  Vierkantprofil 50x50 mm:         31.1 m
+  Vierkantprofil 30x30 mm (Türfl.): ca. 11.1 m
+  Klemmschiene 25x10 mm:           22.0 m
+  Folie PE 200 µm (inkl. 10 %):   12.7 m²
+  KVH 60x60 mm (Querträger):       4.4 m  (4× 1100 mm)
+  Laerche 116×22 mm (Dielen):  9.9 m  (9× 1100 mm)
+  Trittholm 80×40 mm:              1× 1200 mm (volle Breite)
+  Dachneigung:                      ca. 9.5 Grad
+  Dachüberstand (alle 4 Seiten):      300 mm
+  Dachrahmen-Abmessungen:             1800 × 1800 mm  (B×T)
+  Dachrahmen Schrägmass (Seitentr.): 1825 mm
+  Höhendifferenz Dach (Delta):       300 mm
+  Scharniere Dach:                   2x Schwerlast 100x100 Stahl
+  Scharniere Türflügel:              4x Bandscharnier 100×80 mm
+  Gasdruckfeder:                     1x ca. 300-400 N, Hub >= 350 mm
+  Mittelstiel:                       1× 50×50 × 1900 mm
+  Türsturz:                          1× 50×50 × 1100 mm
+  Verbindung:                        Ausklinkungen Typ 1-4 – KEINE Eckverbinder
+  Stiel-Zapfen (Typ 4):             Stiel 2175 mm lang, Zapfen 25 mm
+  Dielenboden Aufbauhöhe:           132 mm  (50+60+22)
+
+==========================================================================
+  Hinweis: Profile 50x50 mm (t ca. 2-3 mm Stahl od. Massivprofil Alu).
+  Folie: PE-Gewächshausfolie 200 µm. Alle Masse in mm.
+  Ausklinkungen erzeugen Formschluss – Scherkräfte werden form-
+  schlüssig aufgenommen, Schrauben nur zur Lagesicherung (Abheben).
+  Bohrlöcher vorgebohren: d=11 mm (M10), d=9 mm (M8), d=7 mm (M6).
+  Schrauben galvanisch verzinkt (DIN EN ISO 10683 oder Feuerverzinkung).
+==========================================================================

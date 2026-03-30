@@ -1,0 +1,51 @@
+====================================================================================================
+GEWÄCHSHAUS – STEP-Einzelbauteile  │  Teileliste / Parts Index
+====================================================================================================
+Erstellt mit: export_step_parts.py
+Ausgabepfad:  /home/herrvorragend/projekte/gewaechshaus/step_parts
+Bauteile:     24/24 erfolgreich exportiert
+
+ Nr  Dateiname                                  Bezeichnung                    Abmessungen               Material                      Anz  Hinweis
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  1  ✓ GWH_01_eckstiel.step                     Eckstiel                       50×50×2175 mm (L×B×H), 1 Cut(s) Stahl S235, 50×50 RHS           4  inkl. Ausklinkungen – Typ-4-Zapfen Kopfende (für Obergurt-Längsriegel)
+  2  ✓ GWH_02_bodenrahmen_laengs.step           Bodenrahmen Längsriegel        1100×50×50 mm (L×B×H), 2 Cut(s) Stahl S235, 50×50 RHS           2  inkl. Ausklinkungen – Typ-3-Zapfentaschen für Eckstiele (2×)
+  3  ✓ GWH_03_bodenrahmen_quer.step             Bodenrahmen Querriegel         50×1100×50 mm (L×B×H), 2 Cut(s) Stahl S235, 50×50 RHS           2  inkl. Ausklinkungen – Typ-1-Vollausklinkung Enden (liegt in Bodenrahmen-Längsriegel)
+  4  ✓ GWH_04_obergurt_laengs.step              Obergurt Längsriegel           1100×50×50 mm (L×B×H), 2 Cut(s) Stahl S235, 50×50 RHS           2  inkl. Ausklinkungen – Typ-4-Zapfentaschen für Stielköpfe (2×)
+  5  ✓ GWH_05_obergurt_quer.step                Obergurt Querriegel            50×1100×50 mm (L×B×H), 2 Cut(s) Stahl S235, 50×50 RHS           2  inkl. Ausklinkungen – Typ-1-Vollausklinkung Enden (liegt in Obergurt-Längsriegel)
+  6  ✓ GWH_06_dach_vorderriegel.step            Dachrahmen Vorderriegel        1800×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  Überstand 300 mm je Seite; z=2150 mm (Traufe)
+  7  ✓ GWH_07_dach_hinterriegel.step            Dachrahmen Hinterriegel        1800×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  Überstand 300 mm je Seite; z=2450 mm (First/Scharnier)
+  8  ✓ GWH_08_dach_seitentraeger.step           Dachrahmen Seitenträger        50×1825×50 mm (L×B×H)     Stahl S235, 50×50 RHS           2  Schrägmaß 1825 mm; beidseitig auf 9.5° ablängen (Pultdachneigung)
+  9  ✓ GWH_09_dach_mittelpfette.step            Dachrahmen Mittelpfette        1800×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  Überstand 300 mm je Seite; z=2300 mm (Mitte)
+ 10  ✓ GWH_10_scharnier_dach.step               Schwerlast-Scharnier Dach      100×20×260 mm (L×B×H)     Stahl verzinkt                  2  Scharniergröße 100×100×10 mm; Gesamthöhe montiert ~260 mm
+ 11  ✓ GWH_11_gasdruckfeder.step                Gasdruckfeder                  Ø28×350 mm                Stahl, Gasdruckfeder            1  Ø28 mm, Hub ~175 mm; hier als Vollzylinder Ø28×350 dargestellt
+ 12  ✓ GWH_12_tuerfluegel_horizontal.step       Türflügel Horizontalriegel     575×30×30 mm (L×B×H)      Stahl S235, 30×30 RHS           6  3 Stück je Flügel (oben / mitte / unten)
+ 13  ✓ GWH_13_tuerfluegel_vertikal.step         Türflügel Vertikalriegel       30×30×1900 mm (L×B×H)     Stahl S235, 30×30 RHS           4  2 Stück je Flügel (links / rechts)
+ 14  ✓ GWH_14_mittelstiel.step                  Türmittelstiel                 50×50×1900 mm (L×B×H), 1 Cut(s) Stahl S235, 50×50 RHS           1  inkl. Ausklinkungen – Typ-4-Zapfen Kopfende (für Türsturz)
+ 15  ✓ GWH_15_tursturz.step                     Türsturz                       1100×50×50 mm (L×B×H)     Stahl S235, 50×50 RHS           1  
+ 16  ✓ GWH_16_scharnier_tuer.step               Türscharnier                   100×8×80 mm (L×B×H)       Stahl verzinkt                  4  Maß 100×80×8 mm
+ 17  ✓ GWH_17_tuerriegel.step                   Türverschlussriegel            50×30×150 mm (L×B×H)      Stahl S235                      2  Symbolisch; 1 je Flügel
+ 18  ✓ GWH_18_trittholm.step                    Trittholm                      1200×80×40 mm (L×B×H)     Holz Lärche C24                 1  80×40×1200 mm
+ 19  ✓ GWH_19_quertraeger.step                  KVH-Querträger                 60×1100×60 mm (L×B×H)     KVH Si NSi 60×60                4  
+ 20  ✓ GWH_20_diele.step                        Lärchendiele                   116×1100×22 mm (L×B×H)    Lärche C24 gehobelt             9  Nutzbreite ~116 mm; inkl. 4 mm Fuge
+ 21  ✓ GWH_21_klemmschiene.step                 Klemmschiene                   25×1100×10 mm (L×B×H)     Stahl verzinkt                 12  Repräsentativlänge 1100 mm; verschiedene Längen möglich
+ 22  ✓ GWH_22_schraube_m10.step                 Schraube M10×80                Ø10×80 mm                 Stahl 8.8 verzinkt              8  Ø10 mm; als Vollzylinder dargestellt
+ 23  ✓ GWH_23_schraube_m8.step                  Schraube M8×60                 Ø8×60 mm                  Stahl 8.8 verzinkt             24  Ø8 mm; als Vollzylinder dargestellt
+ 24  ✓ GWH_24_schraube_m6.step                  Schraube M6×30                 Ø6×30 mm                  Stahl 8.8 verzinkt             32  Ø6 mm; als Vollzylinder dargestellt
+
+====================================================================================================
+HINWEISE ZUR VERWENDUNG
+----------------------------------------------------------------------------------------------------
+• Alle STEP-Dateien im AP214-Format (ISO 10303-21)
+• Schrägbauteile (Nr. 08 Dach-Seitenträger) als gerades Rohmaß exportiert;
+  Ablängwinkel: 9.5° (Pultdachneigung, Höhenunterschied 300 mm auf 1800 mm Tiefe)
+• Schrauben/Scharnier als Vollzylinder/-quader – keine Gewindegeometrie
+• Ausklinkungen und Zapfenverbindungen sind für GWH_01–05 und GWH_14 modelliert (Boolean Cuts):
+    GWH_01 Eckstiel:              Typ-4-Kopfzapfen (25 mm, y-hintere Hälfte)
+    GWH_02 Bodenrahmen Längs:     2× Typ-3-Zapfentaschen für Eckstiele (50×50×25 mm von oben)
+    GWH_03 Bodenrahmen Quer:      2× Typ-1-Vollausklinkung Enden (50×50×25 mm, liegt in Längsriegel)
+    GWH_04 Obergurt Längs:        2× Typ-4-Zapfentaschen für Stielköpfe (50×25×25 mm von unten)
+    GWH_05 Obergurt Quer:         2× Typ-1-Vollausklinkung Enden (50×50×25 mm, liegt in Obergurt-Längs)
+    GWH_14 Türmittelstiel:        Typ-4-Kopfzapfen (25 mm, y-hintere Hälfte) für Türsturz
+• Alle übrigen Bauteile (Nr. 06–13, 15–24): Rohmaße ohne Ausklinkungen
+• Klemmschienen (Nr. 21): Repräsentativlänge 1100 mm; bei Bedarf kürzen
+• Gasdruckfeder (Nr. 11): Einbaulänge 350 mm, Einbauposition seitlich am Dachrahmen
