@@ -31,8 +31,10 @@ del _os, _proj
 P2 = P // 2
 DW_SINGLE = (B - P) // 2; DW = B; DH = 1900; DT_P = 30
 MITTELSTIEL_X = B // 2 - P // 2; CW = 25; CH = 10; DX = 0
-QT_H = 60; QT_B = 60; N_QT = 4; PLANK_T = 22; PLANK_W = 116
-N_PL = 9; PL_GAP = 4; TH_H = 40; TH_D = 80
+QT_H = 60; QT_B = 60; PLANK_T = 22; PLANK_W = 116
+PL_GAP = 4; TH_H = 40; TH_D = 80
+N_QT = max(2, (T - 2*P) // 300)
+N_PL = max(1, (B - 2*P) // (PLANK_W + PL_GAP))
 STIEL_H = H - P2
 SLOPE = 200 / 1200
 H_DACH_V = H - int(OVER * SLOPE)

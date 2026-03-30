@@ -60,11 +60,12 @@ DX       = 0
 # === Holzdielenboden ========================================================
 QT_H    = 60    # Querträger KVH 60x60 – Höhe (mm)
 QT_B    = 60    # Querträger-Breite (mm)
-N_QT    = 4     # Anzahl Querträger
 PLANK_T = 22    # Dielendicke Lärche (mm)
 PLANK_W = 116   # Dielenbreite nominell ~120 mm
-N_PL    = 9     # Anzahl Dielen
 PL_GAP  = 4     # Fuge zwischen Dielen (mm)
+# Anzahl Querträger und Dielen dynamisch aus B und T berechnen
+N_QT    = max(2, (T - 2*P) // 300)          # ca. alle 300 mm einen QT
+N_PL    = max(1, (B - 2*P) // (PLANK_W + PL_GAP))  # so viele Dielen wie in B passen
 TH_H    = 40    # Trittholm-Höhe (mm)
 TH_D    = 80    # Trittholm-Tiefe (mm)
 
