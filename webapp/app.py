@@ -512,6 +512,45 @@ def serve_pdf_stueck():
     return send_file(str(PDF_STUECK), mimetype="application/pdf")
 
 
+@app.route("/download/plaene")
+def download_plaene():
+    """ZIP mit allen generierten Plänen und Dateien."""
+    import io, zipfile, datetime as dt
+
+    files = [
+        (PDF_DRAWING,                    "gewaechshaus_zeichnung.pdf"),
+        (PDF_STUECK,                     "gewaechshaus_stueckliste.pdf"),
+        (BASE_DIR / "gewaechshaus.step", "gewaechshaus.step"),
+        (BASE_DIR / "gewaechshaus.glb",  "gewaechshaus.glb"),
+        (BASE_DIR / "gewaechshaus_stueckliste.txt", "gewaechshaus_stueckliste.txt"),
+    ]
+
+    # Individuelle STEP-Bauteile
+    step_dir = BASE_DIR / "step_parts"
+    if step_dir.exists():
+        for f in sorted(step_dir.glob("*.step")):
+            files.append((f, f"step_parts/{f.name}"))
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for src, arcname in files:
+            if src.exists():
+                zf.write(src, arcname)
+
+    if buf.tell() == 0:
+        return jsonify({"error": "Keine Dateien vorhanden – bitte zuerst Modell generieren"}), 404
+
+    buf.seek(0)
+    ts = dt.datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"gewaechshaus_plaene_{ts}.zip"
+    return send_file(
+        buf,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
 @app.route("/api/stueckliste")
 def get_stueckliste():
     """Stückliste als Text zurückgeben."""

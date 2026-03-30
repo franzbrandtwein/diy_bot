@@ -17,6 +17,35 @@
 /* ── Reset & Base ────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── PWA Install Overlay ─────────────────────────────────────────────── */
+#pwa-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.82);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(6px);
+  animation: pwaFadeIn .3s ease;
+}
+@keyframes pwaFadeIn { from { opacity:0 } to { opacity:1 } }
+#pwa-card {
+  background: #1a1e2e;
+  border: 1px solid #2e3451;
+  border-radius: 18px;
+  padding: 36px 32px 28px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+}
+#pwa-icon { font-size: 3.2em; margin-bottom: 14px; }
+#pwa-card h2 { font-size: 1.15em; margin-bottom: 10px; color: #e8eaf6; }
+#pwa-card > p { font-size: 0.88em; color: #8b92b8; line-height: 1.55; margin-bottom: 22px; }
+#pwa-buttons { display: flex; flex-direction: column; gap: 10px; }
+#pwa-install-btn { font-size: 0.95em; padding: 11px; justify-content: center; }
+#pwa-skip-btn { font-size: 0.85em; padding: 9px; background: transparent;
+  border: 1px solid #2e3451; justify-content: center; }
+#pwa-skip-btn:hover { border-color: #4a5068; color: var(--text); }
+
 :root {
   --bg:        #0f1117;
   --surface:   #1a1d27;
@@ -493,15 +522,32 @@ canvas {
 </head>
 <body>
 
+<!-- ── PWA Install Overlay ───────────────────────────────────────────────── -->
+<div id="pwa-overlay" style="display:none">
+  <div id="pwa-card">
+    <div id="pwa-icon">🌱</div>
+    <h2>Gewächshaus Konfigurator</h2>
+    <p>Als App installieren für das beste Erlebnis – oder direkt im Browser weitermachen.</p>
+    <div id="pwa-buttons">
+      <button id="pwa-install-btn" class="btn btn-primary" style="gap:8px">
+        ⬇️ App installieren
+      </button>
+      <button id="pwa-skip-btn" class="btn" style="color:var(--text-dim)">
+        Im Browser öffnen
+      </button>
+    </div>
+    <p id="pwa-ios-hint" style="display:none;font-size:0.78em;color:var(--text-dim);margin-top:12px;line-height:1.5">
+      Auf iOS: Teilen-Symbol <strong>□↑</strong> antippen → <strong>„Zum Home-Bildschirm"</strong>
+    </p>
+  </div>
+</div>
+
 <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
 <header>
   <h1>🌱 Gewächshaus Konfigurator <span class="version">v1.0</span></h1>
   <div class="header-actions">
-    <a href="/pdf/drawing" target="_blank" class="btn" data-tip="Technische Zeichnung als PDF">
-      📐 Zeichnung
-    </a>
-    <a href="/pdf/stueckliste" target="_blank" class="btn" data-tip="Stückliste mit 3D-Ansichten">
-      📋 Stückliste
+    <a href="/download/plaene" class="btn btn-primary" data-tip="Alle Pläne als ZIP herunterladen">
+      📦 Pläne
     </a>
     <button class="btn" onclick="reloadGLB()" data-tip="3D-Modell neu laden">
       🔄 Modell neu laden
@@ -1259,6 +1305,63 @@ fetch('/api/status')
 
 </script>
 <script>
+// ── PWA Install Overlay ──────────────────────────────────────────────────
+(function() {
+  const SKIP_KEY = 'pwa_install_skipped';
+  const overlay  = document.getElementById('pwa-overlay');
+  const installBtn = document.getElementById('pwa-install-btn');
+  const skipBtn    = document.getElementById('pwa-skip-btn');
+  const iosHint    = document.getElementById('pwa-ios-hint');
+
+  // Schon installiert oder übersprungen → kein Overlay
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                    || window.navigator.standalone === true;
+  if (isStandalone || sessionStorage.getItem(SKIP_KEY)) return;
+
+  let deferredPrompt = null;
+
+  // Chrome/Edge/Android: beforeinstallprompt abfangen
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    overlay.style.display = 'flex';
+    installBtn.style.display = '';
+    iosHint.style.display = 'none';
+  });
+
+  // iOS Safari: kein beforeinstallprompt → eigenen Hinweis zeigen
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (isIOS && isSafari && !isStandalone) {
+    overlay.style.display = 'flex';
+    installBtn.style.display = 'none';
+    iosHint.style.display = 'block';
+  }
+
+  // „App installieren" Button
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') hideOverlay();
+  });
+
+  // „Im Browser öffnen" Button
+  skipBtn.addEventListener('click', () => {
+    sessionStorage.setItem(SKIP_KEY, '1');
+    hideOverlay();
+  });
+
+  // Nach erfolgreicher Installation ausblenden
+  window.addEventListener('appinstalled', hideOverlay);
+
+  function hideOverlay() {
+    overlay.style.animation = 'pwaFadeIn .25s ease reverse forwards';
+    setTimeout(() => { overlay.style.display = 'none'; }, 250);
+  }
+})();
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
