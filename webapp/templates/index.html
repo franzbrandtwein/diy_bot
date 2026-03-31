@@ -442,8 +442,11 @@ canvas {
 }
 .part-item:hover { background: var(--surface2); }
 .part-item.active {
-  background: rgba(61,139,205,.15);
-  border: 1px solid rgba(61,139,205,.3);
+  background: rgba(255,170,0,.15);
+  border: 1px solid rgba(255,170,0,.4);
+}
+.part-item.active .part-dot {
+  box-shadow: 0 0 0 2px rgba(255,170,0,.6);
 }
 .part-dot {
   width: 10px; height: 10px;
@@ -886,6 +889,50 @@ const {
 
 let ghModel = null;
 let animIdGH = null;
+let ghOriginalMaterials = new Map();  // mesh → original material clone
+let activeHighlightGroup = null;
+
+function buildGhMeshMap() {
+  ghOriginalMaterials = new Map();
+  if (!ghModel) return;
+  ghModel.traverse(child => {
+    if (child.isMesh) {
+      ghOriginalMaterials.set(child, child.material.clone());
+    }
+  });
+}
+
+function highlightGroup(groupName) {
+  if (!ghModel || !ghOriginalMaterials.size) return;
+  activeHighlightGroup = groupName;
+  ghModel.traverse(child => {
+    if (!child.isMesh) return;
+    if (child.name === groupName) {
+      const mat = ghOriginalMaterials.get(child).clone();
+      mat.emissive = new THREE.Color(0xffaa00);
+      mat.emissiveIntensity = 0.55;
+      mat.transparent = false;
+      mat.opacity = 1.0;
+      child.material = mat;
+    } else {
+      const mat = ghOriginalMaterials.get(child) ? ghOriginalMaterials.get(child).clone() : child.material.clone();
+      mat.transparent = true;
+      mat.opacity = 0.13;
+      child.material = mat;
+    }
+  });
+}
+
+function clearHighlight() {
+  if (!ghModel) return;
+  activeHighlightGroup = null;
+  ghModel.traverse(child => {
+    if (child.isMesh && ghOriginalMaterials.has(child)) {
+      child.material = ghOriginalMaterials.get(child).clone();
+    }
+  });
+  document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
+}
 
 function animateGH() {
   animIdGH = requestAnimationFrame(animateGH);
@@ -899,6 +946,8 @@ function animateGH() {
 // Stop auto-rotate on user interaction
 canvasGH.addEventListener('pointerdown', () => { autoRotateGH = false; });
 canvasGH.addEventListener('wheel',       () => { autoRotateGH = false; });
+// Klick auf leere Fläche → Highlight aufheben
+canvasGH.addEventListener('click', () => { if (activeHighlightGroup) clearHighlight(); });
 
 function showOverlay(id, show, msg) {
   const el = document.getElementById(id);
@@ -931,6 +980,7 @@ function loadGLB(bustCache = false) {
         }
       });
       sceneGH.add(ghModel);
+      buildGhMeshMap();
       fitCameraToObject(cameraGH, ctrlsGH, ghModel, 1.8);
       showOverlay('overlay-greenhouse', false);
       autoRotateGH = true;
@@ -1035,6 +1085,8 @@ function loadPart(stlName, meta) {
 // ── Tab switching ────────────────────────────────────────────────────────
 window.switchTab = function(tab) {
   const isGH   = tab === 'greenhouse';
+  // Highlight zurücksetzen wenn Gesamtansicht verlassen wird
+  if (!isGH && activeHighlightGroup) clearHighlight();
   document.getElementById('view-greenhouse').style.display = isGH ? 'block' : 'none';
   document.getElementById('view-part').style.display       = isGH ? 'none'  : 'block';
   document.querySelectorAll('.viewer-tab').forEach((t, i) => {
@@ -1082,14 +1134,26 @@ function renderPartsList(parts) {
       <span class="part-qty">${p.anzahl}×</span>
     `;
     li.onclick = () => {
-      // Deselect all
-      document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
-      li.classList.add('active');
       activePartId = p.id;
-      // Switch to part view tab
-      switchTab('part');
-      document.getElementById('tab-part').textContent = `🔩 ${p.name}`;
-      loadPart(p.stl, p);
+      // Gesamtansicht aktiv? → im 3D-Modell markieren
+      const ghVisible = document.getElementById('view-greenhouse').style.display !== 'none';
+      if (ghVisible && ghModel) {
+        if (activeHighlightGroup === p.stl) {
+          // Nochmal klicken → Markierung aufheben
+          clearHighlight();
+        } else {
+          document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
+          li.classList.add('active');
+          highlightGroup(p.stl);
+        }
+      } else {
+        // Bauteil-Detail-Ansicht
+        document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
+        li.classList.add('active');
+        switchTab('part');
+        document.getElementById('tab-part').textContent = `🔩 ${p.name}`;
+        loadPart(p.stl, p);
+      }
     };
     list.appendChild(li);
   });
