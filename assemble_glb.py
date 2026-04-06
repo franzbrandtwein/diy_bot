@@ -28,13 +28,19 @@ RISE     = H_DACH_H - H_DACH_V     # 300
 
 # ── Materialfarben (RGBA 0–255) ────────────────────────────────────────────
 COLORS = {
-    "steel_frame": [122, 122, 122, 255],   # mittelgrau, metallisch
-    "roof_frame":  [122, 122, 122, 255],   # ebenso Stahl
-    "door_frame":  [136, 136, 136, 255],   # hellgrau 30×30-Profile
-    "hardware":    [85,  85,  85,  255],   # dunkelgrau Scharniere
-    "wood":        [200, 160,  96, 255],   # warmes Holzbraun
-    "clamping":    [153, 153, 153, 255],   # aluminium Klemmschienen
-    "screws":      [170, 170, 170, 255],   # silber
+    # Typ 1 – Stahlprofil-Gewächshaus
+    "steel_frame": [122, 122, 122, 255],
+    "roof_frame":  [122, 122, 122, 255],
+    "door_frame":  [136, 136, 136, 255],
+    "hardware":    [85,  85,  85,  255],
+    "wood":        [200, 160,  96, 255],
+    "clamping":    [153, 153, 153, 255],
+    "screws":      [170, 170, 170, 255],
+    # Typ 2 – Fenstergewächshaus
+    "window_frame": [200, 160,  96, 255],  # Holz warm
+    "sill_beam":    [160, 110,  60, 255],  # Schwelle dunkler
+    "top_rail":     [180, 130,  70, 255],  # Obergurt
+    "corner_post":  [150, 100,  50, 255],  # Eckpfosten
 }
 FOIL_COLOR = np.array([180, 255, 180, 90], dtype=np.uint8)  # hellgrün, semi-transparent
 

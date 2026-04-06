@@ -30,7 +30,15 @@ PDF_STUECK  = BASE_DIR / "gewaechshaus_stueckliste_3d.pdf"
 STEP_DIR    = BASE_DIR / "step_parts"
 
 # ── Defaults ───────────────────────────────────────────────────────────────
-DEFAULT_CONFIG = {"B": 1200, "T": 1200, "H": 2200, "OVER": 300, "P": 50}
+DEFAULT_CONFIG = {
+    "B": 1200, "T": 1200, "H": 2200, "OVER": 300, "P": 50,
+    "GH_TYPE": 1,
+    # Typ-2-Defaults
+    "WIN_W": 800, "WIN_H": 1200, "WIN_ROWS": 1,
+    "WIN_COLS_FRONT": 2, "WIN_COLS_BACK": 2,
+    "WIN_COLS_LEFT": 2,  "WIN_COLS_RIGHT": 2,
+    "FRAME_T": 60, "SILL_H": 100,
+}
 
 # ── Build-Status (globaler State) ──────────────────────────────────────────
 build_status = {
@@ -277,7 +285,88 @@ PARTS_META = [
     },
 ]
 
-# ── Flask-App ──────────────────────────────────────────────────────────────
+# ── Bauteile-Metadaten Typ 2 (Fenstergewächshaus) ─────────────────────────
+PARTS_META_T2 = [
+    {
+        "nr": "01", "id": "window_frame", "stl": "window_frame",
+        "name": "Fensterrahmen",
+        "positions": "FGH_01",
+        "material": "Holz (Altfenster), Rahmen ca. 60×60 mm",
+        "anzahl": 0,  # dynamisch
+        "group": "Fenster & Türen",
+        "color": "#c8a060",
+        "abmessungen": "variabel",
+        "hinweis": "Maße aus Konfiguration",
+    },
+    {
+        "nr": "02", "id": "door_frame", "stl": "door_frame",
+        "name": "Balkontür-Rahmen",
+        "positions": "FGH_02",
+        "material": "Holz (Altbalkon­tür), Rahmen ca. 60×60 mm",
+        "anzahl": 0,
+        "group": "Fenster & Türen",
+        "color": "#a07840",
+        "abmessungen": "variabel",
+        "hinweis": "Ersetzt Fenster an konfigurierten Seiten",
+    },
+    {
+        "nr": "03", "id": "sill_beam", "stl": "sill_beam",
+        "name": "Schwellbalken",
+        "positions": "FGH_03",
+        "material": "KVH Fichte, druckimprägniert",
+        "anzahl": 4,
+        "group": "Holzrahmen",
+        "color": "#8b6020",
+        "abmessungen": "100×100 mm",
+        "hinweis": "Unterer Abschluss, Feuchtigkeitsschutz",
+    },
+    {
+        "nr": "04", "id": "top_rail", "stl": "top_rail",
+        "name": "Obergurt-Balken",
+        "positions": "FGH_04",
+        "material": "KVH Fichte",
+        "anzahl": 4,
+        "group": "Holzrahmen",
+        "color": "#a07840",
+        "abmessungen": "100×100 mm",
+        "hinweis": "Oberer Abschluss, Dachanschluss",
+    },
+    {
+        "nr": "05", "id": "corner_post", "stl": "corner_post",
+        "name": "Eckpfosten",
+        "positions": "FGH_05",
+        "material": "KVH Fichte",
+        "anzahl": 4,
+        "group": "Holzrahmen",
+        "color": "#906030",
+        "abmessungen": "100×100 mm",
+        "hinweis": "Verbindet Schwelle, Obergurt und Eckfenster",
+    },
+    {
+        "nr": "06", "id": "roof_frame", "stl": "roof_frame",
+        "name": "Dachrahmen",
+        "positions": "FGH_06",
+        "material": "KVH Fichte oder Stahl",
+        "anzahl": 3,
+        "group": "Dach",
+        "color": "#6a9a6a",
+        "abmessungen": "50×100 mm",
+        "hinweis": "Pultdach, aufklappbar (Scharniere)",
+    },
+    {
+        "nr": "07", "id": "hardware", "stl": "hardware",
+        "name": "Verbindungsmittel & Beschläge",
+        "positions": "FGH_07",
+        "material": "Stahl verzinkt",
+        "anzahl": 0,
+        "group": "Beschläge",
+        "color": "#888888",
+        "abmessungen": "diverse",
+        "hinweis": "Winkelverbinder, Schrauben, Scharniere",
+    },
+]
+
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 
@@ -299,21 +388,66 @@ def save_config(cfg):
 
 def write_params(cfg):
     """params.py neu schreiben – wird vor jeder Regenerierung aufgerufen."""
-    content = (
-        "# params.py – automatisch generiert vom Web-Konfigurator\n"
-        "# Wird bei jedem Build überschrieben.\n\n"
-        f"B    = {int(cfg['B'])}   # Breite   mm\n"
-        f"T    = {int(cfg['T'])}   # Tiefe    mm\n"
-        f"H    = {int(cfg['H'])}   # Wandhöhe mm\n"
-        f"OVER = {int(cfg['OVER'])}  # Dachüberstand mm\n"
-        f"P    = {int(cfg.get('P', 50))}   # Profilquerschnitt mm\n"
-        "# Türpositionen: True = Tür vorhanden\n"
-        f"DOOR_FRONT = {bool(cfg.get('DOOR_FRONT', True))}\n"
-        f"DOOR_BACK  = {bool(cfg.get('DOOR_BACK',  False))}\n"
-        f"DOOR_LEFT  = {bool(cfg.get('DOOR_LEFT',  False))}\n"
-        f"DOOR_RIGHT = {bool(cfg.get('DOOR_RIGHT', False))}\n"
-    )
-    PARAMS_FILE.write_text(content)
+    gh_type = int(cfg.get("GH_TYPE", 1))
+    lines = [
+        "# params.py – automatisch generiert vom Web-Konfigurator\n",
+        "# Wird bei jedem Build überschrieben.\n\n",
+        f"GH_TYPE = {gh_type}   # 1 = Balken/Stahl, 2 = Fenstergewächshaus\n\n",
+    ]
+    if gh_type == 1:
+        lines += [
+            f"B    = {int(cfg['B'])}   # Breite   mm\n",
+            f"T    = {int(cfg['T'])}   # Tiefe    mm\n",
+            f"H    = {int(cfg['H'])}   # Wandhöhe mm\n",
+            f"OVER = {int(cfg['OVER'])}  # Dachüberstand mm\n",
+            f"P    = {int(cfg.get('P', 50))}   # Profilquerschnitt mm\n",
+            "# Türpositionen: True = Tür vorhanden\n",
+            f"DOOR_FRONT = {bool(cfg.get('DOOR_FRONT', True))}\n",
+            f"DOOR_BACK  = {bool(cfg.get('DOOR_BACK',  False))}\n",
+            f"DOOR_LEFT  = {bool(cfg.get('DOOR_LEFT',  False))}\n",
+            f"DOOR_RIGHT = {bool(cfg.get('DOOR_RIGHT', False))}\n",
+        ]
+    else:
+        # Typ 2: Abmessungen aus Fensterformat berechnen
+        win_w = int(cfg.get("WIN_W", 800))
+        win_h = int(cfg.get("WIN_H", 1200))
+        win_rows = int(cfg.get("WIN_ROWS", 1))
+        cols_f = int(cfg.get("WIN_COLS_FRONT", 2))
+        cols_b = int(cfg.get("WIN_COLS_BACK",  2))
+        cols_l = int(cfg.get("WIN_COLS_LEFT",  2))
+        cols_r = int(cfg.get("WIN_COLS_RIGHT", 2))
+        frame_t = int(cfg.get("FRAME_T", 60))
+        sill_h  = int(cfg.get("SILL_H",  100))
+        post    = frame_t  # Eckpfosten gleich Rahmendicke
+        # Gesamtabmessungen: aus Front- und Seitenfenstern
+        B_calc = cols_f * win_w + 2 * post
+        T_calc = cols_l * win_w + 2 * post
+        H_calc = win_rows * win_h + sill_h + post  # Sill + Fenster + Obergurt
+        over   = int(cfg.get("OVER", 300))
+        lines += [
+            f"# Typ-2: Fenstergewächshaus\n",
+            f"WIN_W  = {win_w}   # Fensterbreite mm\n",
+            f"WIN_H  = {win_h}   # Fensterhöhe mm\n",
+            f"WIN_ROWS = {win_rows}   # Fensterreihen\n",
+            f"WIN_COLS_FRONT = {cols_f}\n",
+            f"WIN_COLS_BACK  = {cols_b}\n",
+            f"WIN_COLS_LEFT  = {cols_l}\n",
+            f"WIN_COLS_RIGHT = {cols_r}\n",
+            f"FRAME_T = {frame_t}   # Rahmendicke mm\n",
+            f"SILL_H  = {sill_h}   # Schwellenhöhe mm\n",
+            f"# Abgeleitete Gesamtmaße\n",
+            f"B    = {B_calc}   # Gesamtbreite mm\n",
+            f"T    = {T_calc}   # Gesamttiefe mm\n",
+            f"H    = {H_calc}   # Wandhöhe mm\n",
+            f"OVER = {over}     # Dachüberstand mm\n",
+            f"P    = {frame_t}  # Profilquerschnitt (= Rahmendicke) mm\n",
+            "# Türpositionen (Balkontür)\n",
+            f"DOOR_FRONT = {bool(cfg.get('DOOR_FRONT', True))}\n",
+            f"DOOR_BACK  = {bool(cfg.get('DOOR_BACK',  False))}\n",
+            f"DOOR_LEFT  = {bool(cfg.get('DOOR_LEFT',  False))}\n",
+            f"DOOR_RIGHT = {bool(cfg.get('DOOR_RIGHT', False))}\n",
+        ]
+    PARAMS_FILE.write_text("".join(lines))
 
 
 def set_status(progress, message, error=""):
@@ -349,28 +483,49 @@ def regenerate(params):
         build_status["building"] = True
         build_status["log"] = []
 
+    gh_type = int(params.get("GH_TYPE", 1))
+
     try:
         set_status(2, "💾 Parameter speichern…")
         save_config(params)
         write_params(params)
 
-        set_status(8, "🏗️  FreeCAD-Modell erstellen (kann 1–3 min dauern)…")
-        run_step(["python3", str(BASE_DIR / "freecad_model.py")], timeout=300)
+        if gh_type == 2:
+            set_status(8, "🏗️  Fenstergewächshaus-Modell erstellen…")
+            run_step(["python3", str(BASE_DIR / "window_gh_model.py")], timeout=300)
 
-        set_status(35, "📐 STL-Meshes exportieren…")
-        run_step(["python3", str(BASE_DIR / "freecad_to_meshes.py")], timeout=300)
+            set_status(35, "📐 STL-Meshes exportieren…")
+            run_step(["python3", str(BASE_DIR / "window_gh_meshes.py")], timeout=300)
 
-        set_status(62, "🔮 GLB assemblieren…")
-        run_step(["python3", str(BASE_DIR / "assemble_glb.py")])
+            set_status(62, "🔮 GLB assemblieren…")
+            run_step(["python3", str(BASE_DIR / "assemble_glb.py")])
 
-        set_status(75, "📄 Technische Zeichnung…")
-        run_step(["python3", str(BASE_DIR / "matplotlib_drawing.py")])
+            set_status(75, "📄 Technische Zeichnung…")
+            run_step(["python3", str(BASE_DIR / "matplotlib_drawing_t2.py")])
 
-        set_status(85, "📋 Stückliste PDF…")
-        run_step(["python3", str(BASE_DIR / "stueckliste_pdf.py")])
+            set_status(85, "📋 Stückliste PDF…")
+            run_step(["python3", str(BASE_DIR / "stueckliste_pdf_t2.py")])
 
-        set_status(93, "📦 STEP-Einzelbauteile exportieren…")
-        run_step(["python3", str(BASE_DIR / "export_step_parts.py")], timeout=300)
+            set_status(93, "📦 STEP exportieren…")
+            run_step(["python3", str(BASE_DIR / "export_step_parts.py")], timeout=300)
+        else:
+            set_status(8, "🏗️  FreeCAD-Modell erstellen (kann 1–3 min dauern)…")
+            run_step(["python3", str(BASE_DIR / "freecad_model.py")], timeout=300)
+
+            set_status(35, "📐 STL-Meshes exportieren…")
+            run_step(["python3", str(BASE_DIR / "freecad_to_meshes.py")], timeout=300)
+
+            set_status(62, "🔮 GLB assemblieren…")
+            run_step(["python3", str(BASE_DIR / "assemble_glb.py")])
+
+            set_status(75, "📄 Technische Zeichnung…")
+            run_step(["python3", str(BASE_DIR / "matplotlib_drawing.py")])
+
+            set_status(85, "📋 Stückliste PDF…")
+            run_step(["python3", str(BASE_DIR / "stueckliste_pdf.py")])
+
+            set_status(93, "📦 STEP-Einzelbauteile exportieren…")
+            run_step(["python3", str(BASE_DIR / "export_step_parts.py")], timeout=300)
 
         set_status(100, "✅ Fertig! Modell wurde erfolgreich regeneriert.")
 
@@ -415,18 +570,39 @@ def post_config():
         return jsonify({"error": "Build läuft bereits – bitte warten."}), 409
 
     data = request.get_json(force=True)
+    gh_type = int(data.get("GH_TYPE", 1))
     try:
-        params = {
-            "B":    max(600, min(5000, int(data["B"]))),
-            "T":    max(600, min(5000, int(data["T"]))),
-            "H":    max(1500, min(4000, int(data["H"]))),
-            "OVER": max(0,   min(800,  int(data["OVER"]))),
-            "P":    int(data.get("P", 50)),
-            "DOOR_FRONT": bool(data.get("DOOR_FRONT", True)),
-            "DOOR_BACK":  bool(data.get("DOOR_BACK",  False)),
-            "DOOR_LEFT":  bool(data.get("DOOR_LEFT",  False)),
-            "DOOR_RIGHT": bool(data.get("DOOR_RIGHT", False)),
-        }
+        if gh_type == 2:
+            params = {
+                "GH_TYPE": 2,
+                "WIN_W":  max(400, min(2000, int(data.get("WIN_W", 800)))),
+                "WIN_H":  max(400, min(2500, int(data.get("WIN_H", 1200)))),
+                "WIN_ROWS": max(1, min(4, int(data.get("WIN_ROWS", 1)))),
+                "WIN_COLS_FRONT": max(1, min(10, int(data.get("WIN_COLS_FRONT", 2)))),
+                "WIN_COLS_BACK":  max(1, min(10, int(data.get("WIN_COLS_BACK",  2)))),
+                "WIN_COLS_LEFT":  max(1, min(10, int(data.get("WIN_COLS_LEFT",  2)))),
+                "WIN_COLS_RIGHT": max(1, min(10, int(data.get("WIN_COLS_RIGHT", 2)))),
+                "FRAME_T": max(40, min(120, int(data.get("FRAME_T", 60)))),
+                "SILL_H":  max(60, min(200, int(data.get("SILL_H",  100)))),
+                "OVER": max(0, min(800, int(data.get("OVER", 300)))),
+                "DOOR_FRONT": bool(data.get("DOOR_FRONT", True)),
+                "DOOR_BACK":  bool(data.get("DOOR_BACK",  False)),
+                "DOOR_LEFT":  bool(data.get("DOOR_LEFT",  False)),
+                "DOOR_RIGHT": bool(data.get("DOOR_RIGHT", False)),
+            }
+        else:
+            params = {
+                "GH_TYPE": 1,
+                "B":    max(600, min(5000, int(data["B"]))),
+                "T":    max(600, min(5000, int(data["T"]))),
+                "H":    max(1500, min(4000, int(data["H"]))),
+                "OVER": max(0,   min(800,  int(data["OVER"]))),
+                "P":    int(data.get("P", 50)),
+                "DOOR_FRONT": bool(data.get("DOOR_FRONT", True)),
+                "DOOR_BACK":  bool(data.get("DOOR_BACK",  False)),
+                "DOOR_LEFT":  bool(data.get("DOOR_LEFT",  False)),
+                "DOOR_RIGHT": bool(data.get("DOOR_RIGHT", False)),
+            }
     except (KeyError, ValueError) as e:
         return jsonify({"error": f"Ungültige Parameter: {e}"}), 400
 
@@ -436,6 +612,26 @@ def post_config():
 
 @app.route("/api/parts")
 def get_parts():
+    cfg = load_config()
+    if int(cfg.get("GH_TYPE", 1)) == 2:
+        # Anzahl dynamisch aus config berechnen
+        meta = [dict(p) for p in PARTS_META_T2]
+        cols_f = int(cfg.get("WIN_COLS_FRONT", 2))
+        cols_b = int(cfg.get("WIN_COLS_BACK",  2))
+        cols_l = int(cfg.get("WIN_COLS_LEFT",  2))
+        cols_r = int(cfg.get("WIN_COLS_RIGHT", 2))
+        rows   = int(cfg.get("WIN_ROWS", 1))
+        door_sides = sum([
+            cfg.get("DOOR_FRONT", True), cfg.get("DOOR_BACK", False),
+            cfg.get("DOOR_LEFT",  False), cfg.get("DOOR_RIGHT", False),
+        ])
+        total_openings = (cols_f + cols_b + cols_l + cols_r) * rows
+        for p in meta:
+            if p["id"] == "window_frame":
+                p["anzahl"] = total_openings - door_sides
+            elif p["id"] == "door_frame":
+                p["anzahl"] = door_sides
+        return jsonify(meta)
     return jsonify(PARTS_META)
 
 

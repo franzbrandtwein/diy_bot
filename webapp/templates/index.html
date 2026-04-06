@@ -499,6 +499,30 @@ canvas {
   .viewer-container { height: 70vh; min-height: 320px; }
 }
 
+/* ── Typ-Selektor ─────────────────────────────────────────────────── */
+.type-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: var(--surface2);
+  user-select: none;
+}
+.type-btn input[type="radio"] { display: none; }
+.type-btn span { font-size: 13px; font-weight: 700; color: var(--text); }
+.type-btn small { font-size: 9px; color: var(--text-dim); text-align: center; }
+.type-btn:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(61,139,205,.18);
+}
+.type-btn:has(input:checked) span { color: var(--accent); }
+
 /* ── Tooltip ─────────────────────────────────────────────────────────── */
 [data-tip] { position: relative; }
 [data-tip]:hover::after {
@@ -566,6 +590,30 @@ canvas {
     <div class="panel-title">⚙️ Parameter</div>
     <div class="panel-body">
 
+      <!-- Typ-Selektor -->
+      <div class="param-group" style="margin-bottom:14px">
+        <label style="margin-bottom:8px">🏗️ Gewächshaus-Typ</label>
+        <div style="display:flex;gap:8px">
+          <label class="type-btn" id="type-btn-1">
+            <input type="radio" name="gh_type" value="1" id="gh_type_1" checked
+                   onchange="switchGhType(1)">
+            <span>🔩 Typ 1</span>
+            <small>Stahlprofil-Rahmen</small>
+          </label>
+          <label class="type-btn" id="type-btn-2">
+            <input type="radio" name="gh_type" value="2" id="gh_type_2"
+                   onchange="switchGhType(2)">
+            <span>🪟 Typ 2</span>
+            <small>Fenster &amp; Balkontüren</small>
+          </label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ── TYP 1 PARAMETER ────────────────────────────────────────────── -->
+      <div id="panel-type1">
+
       <div class="param-group">
         <label>Breite (B) – X-Achse</label>
         <div class="param-row">
@@ -612,7 +660,7 @@ canvas {
 
       <div class="divider"></div>
 
-      <!-- Türpositionen -->
+      <!-- Türpositionen Typ 1 -->
       <div class="param-group">
         <label style="margin-bottom:8px">🚪 Türpositionen</label>
         <div class="door-layout">
@@ -643,6 +691,130 @@ canvas {
           </div>
         </div>
       </div>
+
+      </div><!-- /#panel-type1 -->
+
+      <!-- ── TYP 2 PARAMETER ────────────────────────────────────────────── -->
+      <div id="panel-type2" style="display:none">
+
+        <div style="font-size:11px;color:var(--accent);margin-bottom:10px;padding:6px 8px;background:rgba(61,139,205,.1);border-radius:4px;border-left:3px solid var(--accent)">
+          Die Gesamtabmessungen ergeben sich automatisch aus dem Fensterformat und der Anordnung.
+        </div>
+
+        <div class="param-group">
+          <label>Fensterbreite (WIN_W)</label>
+          <div class="param-row">
+            <input type="range" id="slider-WIN_W" min="400" max="1600" step="25" value="800"
+                   oninput="syncParam('WIN_W', this.value); updateT2Dims()">
+            <input type="number" id="input-WIN_W" class="param-input" value="800" min="400" max="1600"
+                   oninput="syncParam('WIN_W', this.value); updateT2Dims()">
+          </div>
+          <div style="font-size:10px;color:var(--text-dim)">400 – 1600 mm</div>
+        </div>
+
+        <div class="param-group">
+          <label>Fensterhöhe (WIN_H)</label>
+          <div class="param-row">
+            <input type="range" id="slider-WIN_H" min="400" max="2000" step="25" value="1200"
+                   oninput="syncParam('WIN_H', this.value); updateT2Dims()">
+            <input type="number" id="input-WIN_H" class="param-input" value="1200" min="400" max="2000"
+                   oninput="syncParam('WIN_H', this.value); updateT2Dims()">
+          </div>
+          <div style="font-size:10px;color:var(--text-dim)">400 – 2000 mm</div>
+        </div>
+
+        <div class="param-group">
+          <label>Fensterreihen (WIN_ROWS)</label>
+          <div class="param-row">
+            <input type="range" id="slider-WIN_ROWS" min="1" max="4" step="1" value="1"
+                   oninput="syncParam('WIN_ROWS', this.value); updateT2Dims()">
+            <input type="number" id="input-WIN_ROWS" class="param-input" value="1" min="1" max="4"
+                   oninput="syncParam('WIN_ROWS', this.value); updateT2Dims()">
+          </div>
+          <div style="font-size:10px;color:var(--text-dim)">1 – 4 Reihen</div>
+        </div>
+
+        <div class="param-group">
+          <label>Dachüberstand (OVER)</label>
+          <div class="param-row">
+            <input type="range" id="slider-WIN_OVER" min="0" max="800" step="25" value="300"
+                   oninput="syncParam('WIN_OVER', this.value)">
+            <input type="number" id="input-WIN_OVER" class="param-input" value="300" min="0" max="800"
+                   oninput="syncParam('WIN_OVER', this.value)">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="param-group">
+          <label style="margin-bottom:8px">🪟 Fenster pro Seite</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 10px">
+            <div>
+              <label style="font-size:10px;color:var(--text-dim)">Vorne</label>
+              <input type="number" id="input-WIN_COLS_FRONT" class="param-input"
+                     value="2" min="1" max="10" oninput="syncParam('WIN_COLS_FRONT',this.value); updateT2Dims()">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text-dim)">Hinten</label>
+              <input type="number" id="input-WIN_COLS_BACK" class="param-input"
+                     value="2" min="1" max="10" oninput="syncParam('WIN_COLS_BACK',this.value); updateT2Dims()">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text-dim)">Links</label>
+              <input type="number" id="input-WIN_COLS_LEFT" class="param-input"
+                     value="2" min="1" max="10" oninput="syncParam('WIN_COLS_LEFT',this.value); updateT2Dims()">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text-dim)">Rechts</label>
+              <input type="number" id="input-WIN_COLS_RIGHT" class="param-input"
+                     value="2" min="1" max="10" oninput="syncParam('WIN_COLS_RIGHT',this.value); updateT2Dims()">
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Balkontür-Positionen Typ 2 -->
+        <div class="param-group">
+          <label style="margin-bottom:8px">🚪 Balkontür (ersetzt 1 Fenster)</label>
+          <div class="door-layout">
+            <div class="door-slot door-top">
+              <label>
+                <input type="checkbox" id="t2_door_back" onchange="markDirty()">
+                <span>Hinten</span>
+              </label>
+            </div>
+            <div class="door-slot door-left">
+              <label>
+                <input type="checkbox" id="t2_door_left" onchange="markDirty()">
+                <span>Links</span>
+              </label>
+            </div>
+            <div class="door-center">🪟</div>
+            <div class="door-slot door-right">
+              <label>
+                <input type="checkbox" id="t2_door_right" onchange="markDirty()">
+                <span>Rechts</span>
+              </label>
+            </div>
+            <div class="door-slot door-bottom">
+              <label>
+                <input type="checkbox" id="t2_door_front" checked onchange="markDirty()">
+                <span>Vorne</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Berechnete Gesamtmaße -->
+        <div style="background:rgba(0,0,0,.15);border-radius:6px;padding:8px 10px;margin-top:8px;font-size:11px">
+          <div style="color:var(--text-dim);font-size:10px;margin-bottom:4px">Berechnete Gesamtmaße</div>
+          <div id="t2-dims" style="color:var(--text);line-height:1.7">
+            B: – mm &nbsp; T: – mm &nbsp; H: – mm
+          </div>
+        </div>
+
+      </div><!-- /#panel-type2 -->
 
       <div class="divider"></div>
 
@@ -1175,22 +1347,50 @@ function loadConfig() {
     .then(r => r.json())
     .then(cfg => {
       params = cfg;
-      ['B', 'T', 'H', 'OVER'].forEach(k => {
-        const v = cfg[k];
-        const s = document.getElementById('slider-' + k);
-        const i = document.getElementById('input-'  + k);
-        if (s) s.value = v;
-        if (i) i.value = v;
-      });
-      // Checkboxen setzen
-      const df = document.getElementById('door_front');
-      const db = document.getElementById('door_back');
-      const dl = document.getElementById('door_left');
-      const dr = document.getElementById('door_right');
-      if (df) df.checked = cfg.DOOR_FRONT  ?? true;
-      if (db) db.checked = cfg.DOOR_BACK   ?? false;
-      if (dl) dl.checked = cfg.DOOR_LEFT   ?? false;
-      if (dr) dr.checked = cfg.DOOR_RIGHT  ?? false;
+      const ghType = parseInt(cfg.GH_TYPE || 1);
+      switchGhType(ghType, false);
+
+      if (ghType === 1) {
+        ['B', 'T', 'H', 'OVER'].forEach(k => {
+          const v = cfg[k];
+          const s = document.getElementById('slider-' + k);
+          const i = document.getElementById('input-'  + k);
+          if (s) s.value = v;
+          if (i) i.value = v;
+        });
+        const df = document.getElementById('door_front');
+        const db = document.getElementById('door_back');
+        const dl = document.getElementById('door_left');
+        const dr = document.getElementById('door_right');
+        if (df) df.checked = cfg.DOOR_FRONT  ?? true;
+        if (db) db.checked = cfg.DOOR_BACK   ?? false;
+        if (dl) dl.checked = cfg.DOOR_LEFT   ?? false;
+        if (dr) dr.checked = cfg.DOOR_RIGHT  ?? false;
+      } else {
+        ['WIN_W','WIN_H','WIN_ROWS'].forEach(k => {
+          const v = cfg[k];
+          const s = document.getElementById('slider-' + k);
+          const i = document.getElementById('input-'  + k);
+          if (s && v) s.value = v;
+          if (i && v) i.value = v;
+        });
+        const overI = document.getElementById('input-WIN_OVER');
+        const overS = document.getElementById('slider-WIN_OVER');
+        if (cfg.OVER) { if (overI) overI.value = cfg.OVER; if (overS) overS.value = cfg.OVER; }
+        ['FRONT','BACK','LEFT','RIGHT'].forEach(s => {
+          const el = document.getElementById(`input-WIN_COLS_${s}`);
+          if (el && cfg[`WIN_COLS_${s}`]) el.value = cfg[`WIN_COLS_${s}`];
+        });
+        const t2f = document.getElementById('t2_door_front');
+        const t2b = document.getElementById('t2_door_back');
+        const t2l = document.getElementById('t2_door_left');
+        const t2r = document.getElementById('t2_door_right');
+        if (t2f) t2f.checked = cfg.DOOR_FRONT ?? true;
+        if (t2b) t2b.checked = cfg.DOOR_BACK  ?? false;
+        if (t2l) t2l.checked = cfg.DOOR_LEFT  ?? false;
+        if (t2r) t2r.checked = cfg.DOOR_RIGHT ?? false;
+        updateT2Dims();
+      }
       updateConfigInfo(cfg);
     })
     .catch(e => console.warn('config fetch failed:', e));
@@ -1217,12 +1417,51 @@ window.updateLighting = function() {
   sceneGH.fog = new THREE.FogExp2(bgColor.getHex(), 0.00012);
 };
 
+// ── Typ wechseln ─────────────────────────────────────────────────────────
+window.switchGhType = function(type, markChange = true) {
+  const t = parseInt(type);
+  document.getElementById('panel-type1').style.display = t === 1 ? '' : 'none';
+  document.getElementById('panel-type2').style.display = t === 2 ? '' : 'none';
+  const r1 = document.getElementById('gh_type_1');
+  const r2 = document.getElementById('gh_type_2');
+  if (r1) r1.checked = (t === 1);
+  if (r2) r2.checked = (t === 2);
+  params.GH_TYPE = t;
+  if (markChange) markDirty();
+};
+
+// ── Berechnete Gesamtmaße Typ 2 anzeigen ─────────────────────────────────
+window.updateT2Dims = function() {
+  const winW  = parseInt(document.getElementById('input-WIN_W')?.value  || 800);
+  const winH  = parseInt(document.getElementById('input-WIN_H')?.value  || 1200);
+  const rows  = parseInt(document.getElementById('input-WIN_ROWS')?.value || 1);
+  const cF    = parseInt(document.getElementById('input-WIN_COLS_FRONT')?.value || 2);
+  const cL    = parseInt(document.getElementById('input-WIN_COLS_LEFT')?.value  || 2);
+  const ft    = 60;  // FRAME_T default
+  const sill  = 100; // SILL_H default
+  const B = cF * winW + 2 * ft;
+  const T = cL * winW + 2 * ft;
+  const H = rows * winH + sill + ft;
+  const el = document.getElementById('t2-dims');
+  if (el) el.innerHTML =
+    `B: <b>${B}</b> mm &nbsp; T: <b>${T}</b> mm &nbsp; H: <b>${H}</b> mm &nbsp;`+
+    `<span style="color:var(--text-dim)">(${(B/1000).toFixed(2)}×${(T/1000).toFixed(2)} m)</span>`;
+};
+
 // ── markDirty (Checkboxen melden Änderung) ───────────────────────────────
 window.markDirty = function() {
-  params.DOOR_FRONT = document.getElementById('door_front')?.checked ?? true;
-  params.DOOR_BACK  = document.getElementById('door_back')?.checked  ?? false;
-  params.DOOR_LEFT  = document.getElementById('door_left')?.checked  ?? false;
-  params.DOOR_RIGHT = document.getElementById('door_right')?.checked ?? false;
+  const ghType = parseInt(params.GH_TYPE || 1);
+  if (ghType === 2) {
+    params.DOOR_FRONT = document.getElementById('t2_door_front')?.checked ?? true;
+    params.DOOR_BACK  = document.getElementById('t2_door_back')?.checked  ?? false;
+    params.DOOR_LEFT  = document.getElementById('t2_door_left')?.checked  ?? false;
+    params.DOOR_RIGHT = document.getElementById('t2_door_right')?.checked ?? false;
+  } else {
+    params.DOOR_FRONT = document.getElementById('door_front')?.checked ?? true;
+    params.DOOR_BACK  = document.getElementById('door_back')?.checked  ?? false;
+    params.DOOR_LEFT  = document.getElementById('door_left')?.checked  ?? false;
+    params.DOOR_RIGHT = document.getElementById('door_right')?.checked ?? false;
+  }
 };
 
 // ── Param sync ───────────────────────────────────────────────────────────
@@ -1259,6 +1498,20 @@ window.generateModel = function() {
 
   // Sicherstellen dass Checkbox-Werte im params-Objekt aktuell sind
   markDirty();
+
+  // Typ-2: Felder in params übernehmen
+  const ghType = parseInt(params.GH_TYPE || 1);
+  if (ghType === 2) {
+    const g = (id) => parseInt(document.getElementById(id)?.value || 0);
+    params.WIN_W          = g('input-WIN_W');
+    params.WIN_H          = g('input-WIN_H');
+    params.WIN_ROWS       = g('input-WIN_ROWS');
+    params.WIN_COLS_FRONT = g('input-WIN_COLS_FRONT');
+    params.WIN_COLS_BACK  = g('input-WIN_COLS_BACK');
+    params.WIN_COLS_LEFT  = g('input-WIN_COLS_LEFT');
+    params.WIN_COLS_RIGHT = g('input-WIN_COLS_RIGHT');
+    params.OVER           = g('input-WIN_OVER') || 300;
+  }
 
   const btn = document.getElementById('btn-generate');
   btn.disabled = true;
