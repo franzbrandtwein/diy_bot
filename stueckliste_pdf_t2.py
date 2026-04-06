@@ -38,34 +38,71 @@ C_WOOD   = "#c8a060"; C_WOOD_D = "#8b6040"
 C_GLASS  = "#cce8ff"; C_METAL = "#b0b8c1"; C_TEXT = "#1a1a2e"
 
 
-def draw_frame_3d(ax, w, h, ft, c_frame=C_WOOD, c_glass=C_GLASS, title="Fenster"):
-    """Isometrische Darstellung eines Fensterrahmens."""
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-    ax.set_axis_off()
-    depth = ft
-    # Außenquader
-    def quader(x0,y0,z0,dx,dy,dz,color,alpha=0.8):
-        x1,y1,z1 = x0+dx,y0+dy,z0+dz
-        faces = [
-            [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]],
-            [[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],
-            [[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],
-            [[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],
-            [[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],
-            [[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],
-        ]
-        pc = Poly3DCollection(faces, alpha=alpha, linewidth=0.3, edgecolor='#555')
-        pc.set_facecolor(color)
-        ax.add_collection3d(pc)
-    # Rahmenteile
-    quader(0,0,0,w,depth,ft,c_frame)          # unten
-    quader(0,0,h-ft,w,depth,ft,c_frame)       # oben
-    quader(0,0,ft,ft,depth,h-2*ft,c_frame)    # links
-    quader(w-ft,0,ft,ft,depth,h-2*ft,c_frame) # rechts
-    # Glas
-    if w > 2*ft and h > 2*ft:
-        quader(ft,depth*0.4,ft,w-2*ft,depth*0.1,h-2*ft,c_glass,alpha=0.4)
-    ax.set_xlim(0,w); ax.set_ylim(0,depth); ax.set_zlim(0,h)
+def draw_window_2d(ax, w, h, ft, c_frame=C_WOOD, c_glass=C_GLASS,
+                   title="Fenster", door=False):
+    """Frontalansicht eines Fensterrahmens (2D, korrekte Proportionen)."""
+    ax.set_aspect('equal')
+    ax.axis('off')
+    pad = 0.08
+    scale = min((1 - 2*pad) / w, (1 - 2*pad) / h)
+    sw = w * scale
+    sh = h * scale
+    ox = (1.0 - sw) / 2
+    oy = (1.0 - sh) / 2
+    sft = ft * scale
+
+    # Schatten
+    shadow = mpatches.Rectangle((ox+0.02, oy-0.02), sw, sh,
+                                  fc='#aaa', ec='none', alpha=0.3, zorder=1)
+    ax.add_patch(shadow)
+    # Äußerer Rahmen
+    outer = mpatches.Rectangle((ox, oy), sw, sh,
+                                 fc=c_frame, ec='#4a3010', lw=1.5, zorder=2)
+    ax.add_patch(outer)
+    # Glas / Öffnung
+    if sw > 2*sft and sh > 2*sft:
+        gx, gy = ox + sft, oy + sft
+        gw, gh = sw - 2*sft, sh - 2*sft
+        if door:
+            # Tür: offen unten → kein unterer Querriegel
+            gy = oy
+            gh = sh - sft
+        glass = mpatches.Rectangle((gx, gy), gw, gh,
+                                    fc=c_glass, ec='#6699bb', lw=0.8,
+                                    alpha=0.55, zorder=3)
+        ax.add_patch(glass)
+        # Lichtreflex
+        ax.plot([gx + gw*0.15, gx + gw*0.35], [gy + gh*0.75, gy + gh*0.88],
+                color='white', lw=1.2, alpha=0.6, zorder=4)
+
+    # Tiefeneffekt: rechte/obere Kante leicht dunkler
+    ax.plot([ox+sw, ox+sw+0.01], [oy, oy-0.01], color='#4a3010', lw=0.5,
+            alpha=0.5, zorder=5)
+
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1)
+    ax.set_title(title, fontsize=7, fontweight='bold', pad=2)
+
+
+def draw_beam_2d(ax, lx, lz, color, title):
+    """Frontalansicht eines Balkens / Pfostens."""
+    ax.set_aspect('equal')
+    ax.axis('off')
+    pad = 0.1
+    scale = min((1-2*pad)/max(lx,1), (1-2*pad)/max(lz,1))
+    sw, sh = lx*scale, lz*scale
+    ox, oy = (1-sw)/2, (1-sh)/2
+    shadow = mpatches.Rectangle((ox+0.02, oy-0.02), sw, sh,
+                                  fc='#aaa', ec='none', alpha=0.3)
+    ax.add_patch(shadow)
+    rect = mpatches.Rectangle((ox, oy), sw, sh,
+                                fc=color, ec='#333', lw=1.2)
+    ax.add_patch(rect)
+    # Maserung
+    for i in range(1, 4):
+        yl = oy + i * sh / 4
+        ax.plot([ox+0.01*sw, ox+0.99*sw], [yl, yl+0.02*sh],
+                color='#7a5020', lw=0.4, alpha=0.4)
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1)
     ax.set_title(title, fontsize=7, fontweight='bold', pad=2)
 
 
@@ -145,34 +182,21 @@ with PdfPages(OUTPUT) as pdf:
         fig = plt.figure(figsize=(29.7/2.54, 21/2.54), facecolor='white')
         for idx, p in enumerate(page_parts):
             row, col = divmod(idx, 2)
-            ax_3d = fig.add_axes([col*0.5+0.02, 0.52-row*0.5+0.05, 0.2, 0.38],
-                                 projection='3d')
+            ax_3d = fig.add_axes([col*0.5+0.02, 0.52-row*0.5+0.05, 0.2, 0.38])
             if p["draw"] == "window":
-                draw_frame_3d(ax_3d, WIN_W, WIN_H, FT, title=p["name"])
+                draw_window_2d(ax_3d, WIN_W, WIN_H, FT, title=p["name"])
             elif p["draw"] == "door":
-                draw_frame_3d(ax_3d, WIN_W, WIN_ZONE_H, FT,
-                              c_frame=C_WOOD_D, title=p["name"])
+                draw_window_2d(ax_3d, WIN_W, WIN_ZONE_H, FT,
+                               c_frame=C_WOOD_D, title=p["name"], door=True)
             elif p["draw"] in ("post", "beam"):
-                lx = POST if p["draw"]=="post" else max(B,T)-2*POST
-                ly = POST; lz = H if p["draw"]=="post" else POST
-                from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-                ax_3d.set_axis_off()
-                x1,y1,z1 = lx,ly,lz
-                faces = [
-                    [[0,0,0],[x1,0,0],[x1,y1,0],[0,y1,0]],
-                    [[0,0,z1],[x1,0,z1],[x1,y1,z1],[0,y1,z1]],
-                    [[0,0,0],[x1,0,0],[x1,0,z1],[0,0,z1]],
-                    [[0,y1,0],[x1,y1,0],[x1,y1,z1],[0,y1,z1]],
-                ]
-                pc = Poly3DCollection(faces, alpha=0.8, edgecolor='#555', linewidth=0.3)
-                pc.set_facecolor(p["color"]); ax_3d.add_collection3d(pc)
-                ax_3d.set_xlim(0,x1); ax_3d.set_ylim(0,y1); ax_3d.set_zlim(0,z1)
-                ax_3d.set_title(p["name"], fontsize=7, fontweight='bold', pad=2)
+                lx = POST if p["draw"] == "post" else max(B, T) - 2*POST
+                lz = H    if p["draw"] == "post" else POST
+                draw_beam_2d(ax_3d, lx, lz, p["color"], title=p["name"])
             else:
-                ax_3d.set_axis_off()
-                ax_3d.text(0.5, 0.5, 0.5, p["name"], ha='center', fontsize=8,
-                           color=p["color"])
-                ax_3d.set_title(p["name"], fontsize=7, fontweight='bold', pad=2)
+                ax_3d.axis("off")
+                ax_3d.text(0.5, 0.5, p["name"], ha="center", va="center",
+                           fontsize=8, color=p["color"])
+                ax_3d.set_title(p["name"], fontsize=7, fontweight="bold", pad=2)
 
             # Info-Block
             ax_info = fig.add_axes([col*0.5+0.24, 0.52-row*0.5+0.05, 0.24, 0.38])
