@@ -81,12 +81,12 @@ def window_frame(x, y, z, w, h, depth=POST, is_door=False):
     inner = cq.Workplane("XY").box(inner_w, depth+2, inner_h).translate(
         (x+w/2, y+depth/2, z+h/2))
     frame = outer.cut(inner)
+    all_shapes.append(frame)
     if is_door:
-        # Türschwelle: unterer Riegel bleibt drin (kein Ausschnitt ganz unten)
+        # Türschwelle: unterer Riegel als separates Shape (vermeidet .union() OCP-Bug)
         sill = cq.Workplane("XY").box(inner_w, depth+2, FT).translate(
             (x+w/2, y+depth/2, z+FT/2))
-        frame = frame.union(sill)
-    all_shapes.append(frame)
+        all_shapes.append(sill)
     return frame
 
 
